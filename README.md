@@ -1,1 +1,1 @@
-# Metronome
+Metronome for musician

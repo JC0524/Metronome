@@ -1,1 +1,1 @@
-Metronome for musician
+Metronome for every musician

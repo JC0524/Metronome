@@ -194,6 +194,8 @@
     .mode-button.active { background: var(--yellow); box-shadow: inset 0 0 0 2px var(--paper); }
     .rhythm-system { display: none; }
     .rhythm-system.active { display: block; }
+    #customSystem { scroll-margin-top: 72px; }
+    #freeStaff { scroll-margin-top: 72px; }
     .presets { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
     .preset.zoom-control { min-width: 27px; padding: 5px; }
     .preset { border: 2px solid var(--ink); background: var(--paper); border-radius: 6px; color: var(--ink); font: 700 .62rem "Space Mono", monospace; cursor: pointer; padding: 5px 7px; }
@@ -335,7 +337,7 @@
 
       <div class="rhythm-system" id="customSystem">
         <div class="bar-header"><h2>FREE RHYTHM</h2><div class="presets"><button class="preset" id="customUndo" type="button" disabled>UNDO</button><button class="preset" id="customRedo" type="button" disabled>REDO</button><button class="preset zoom-control" id="customFit" type="button" title="Fit rhythm to screen" aria-label="Fit rhythm to screen">FIT</button><button class="preset zoom-control" id="customZoomOut" type="button" title="Zoom out rhythm" aria-label="Zoom out rhythm">−</button><button class="preset zoom-control" id="customZoomIn" type="button" title="Zoom in rhythm" aria-label="Zoom in rhythm">+</button><button class="preset" id="customSlur" type="button">SLUR</button><button class="preset" id="customClear" type="button">CLEAR</button></div></div>
-        <div class="grid-scroll"><div class="free-score-stage" id="freeScoreStage"><div class="grid" id="grid"></div></div></div>
+        <div class="grid-scroll" id="freeStaff"><div class="free-score-stage" id="freeScoreStage"><div class="grid" id="grid"></div></div></div>
         <div class="bar-foot">SELECT A FIGURE → TAP THE END OF THE LINE → REPEAT • NO METRE</div>
       </div>
     </section>
@@ -346,7 +348,7 @@
     (() => {
       "use strict";
       const state = { playing:false, muted:false, bpm:60, beats:4, sub:1, standardUnits:1, standardCompatible:true, standardTuplet:false, standardCompound:false, mode:"standard", standardPattern:[], freePattern:[], freeGlyphs:[], freeDurations:[], freeGroups:[], freeSlurs:[], freeHistory:[], freeRedoHistory:[], slurMode:false, slurAnchor:null, freeZoom:1, selectedGlyph:"𝅘𝅥", selectedRest:false, selectedTuplet:"", selectedUnits:1, tone:"wood" };
-            let ctx, timer, nextTime=0, step=0;
+            let ctx, timer, nextTime=0, step=0, freeClickBuffer=null, freeClickLimiter=null, freeClickMaster=null;
       const $ = id => document.getElementById(id);
       const labels={en:{play:"PLAY",stop:"STOP",restart:"RESTART",tempo:"TEMPO",preset:"TEMPO PRESET",metre:"METRE",noteValue:"NOTE",standard:"STANDARD RHYTHM",custom:"CUSTOM BAR",free:"FREE RHYTHM",reset:"RESET",mute:"MUTE",clear:"CLEAR",undo:"UNDO",redo:"REDO",fit:"FIT",standardFoot:"",standardInvalid:"USE CUSTOM BAR",freeFoot:"SLUR = ONE PULSE • TAP A CURVE TO REMOVE • NO METRE",families:["STANDARD NOTES","STANDARD RESTS","DOTTED NOTES","TUPLETS · 3 IN THE TIME OF 2"],credit:"Developed by Joe Chan"},zh:{play:"播放",stop:"停止",restart:"重播",tempo:"速度",preset:"速度預設",metre:"拍號",noteValue:"音符",standard:"標準節奏",custom:"自訂節奏",free:"自由節奏",reset:"重設",mute:"靜音",clear:"清除",undo:"復原",redo:"重做",fit:"全覽",standardFoot:"",standardInvalid:"請使用自訂節奏",freeFoot:"連結 = 一個拍點 • 點按弧線可移除 • 無拍號",families:["標準音符","標準休止符","附點音符","三連音 · 三個音佔兩個音的時值"],credit:"由 Joe Chan 開發"}};
       const captionZh={"BREVE":"二全音符","WHOLE":"全音符","HALF":"二分","¼":"四分","⅛":"八分","1/16":"十六分","1/32":"三十二分","1/64":"六十四分","1/128":"一百二十八分","BREVE R":"二全休","WHOLE R":"全休","HALF R":"二分休","¼ REST":"四分休","⅛ REST":"八分休","R16":"十六分休","R32":"三十二分休","R64":"六十四分休","D WHOLE":"附點全","D HALF":"附點二分","D ¼":"附點四分","D ⅛":"附點八分","D 1/16":"附點十六分","DD HALF":"雙附點二分","DD ¼":"雙附點四分","DD ⅛":"雙附點八分","DD 1/16":"雙附點十六分"};
@@ -362,10 +364,42 @@
       function duration(){ return state.mode==="standard"?(60/state.bpm)*state.standardUnits:(60/state.bpm)*customPulseUnits(step); }
       function tempoName(b){ if(b<20)return"LARGHISSIMO"; if(b<40)return"GRAVE"; if(b<45)return"LENTO"; if(b<50)return"LARGO"; if(b<55)return"LARGHETTO"; if(b<73)return"ADAGIO"; if(b<78)return"ANDANTE"; if(b<86)return"ANDANTINO"; if(b<98)return"MODERATO"; if(b<109)return"ALLEGRETTO"; if(b<132)return"ALLEGRO"; if(b<168)return"VIVACE"; if(b<178)return"PRESTO"; return"PRESTISSIMO"; }
       function tempoPresetValue(b){ if(b<20)return"15"; if(b<40)return"30"; if(b<45)return"43"; if(b<50)return"48"; if(b<55)return"53"; if(b<73)return"60"; if(b<78)return"75"; if(b<86)return"81"; if(b<98)return"92"; if(b<109)return"104"; if(b<132)return"120"; if(b<168)return"136"; if(b<178)return"172"; return"180"; }
+      function fixedFreeClick(ac,time){
+        // Every Free Rhythm note uses one sample and one levelled output bus. A hard,
+        // fast limiter holds dense note streams at the same perceived output level as
+        // sparse notes, without changing which note figures are played.
+        if(!freeClickBuffer||freeClickBuffer.sampleRate!==ac.sampleRate){
+          const length=Math.ceil(ac.sampleRate*.0065),buffer=ac.createBuffer(1,length,ac.sampleRate),data=buffer.getChannelData(0);
+          for(let i=0;i<length;i++){
+            const attack=Math.min(1,i/Math.max(1,Math.round(ac.sampleRate*.00018)));
+            const release=Math.min(1,(length-i)/Math.max(1,Math.round(ac.sampleRate*.00075)));
+            data[i]=Math.sin(2*Math.PI*1600*i/ac.sampleRate)*attack*release*.95;
+          }
+          freeClickBuffer=buffer;
+        }
+        if(!freeClickLimiter||!freeClickMaster){
+          freeClickLimiter=ac.createDynamicsCompressor();
+          freeClickLimiter.threshold.setValueAtTime(-12,ac.currentTime);
+          freeClickLimiter.knee.setValueAtTime(0,ac.currentTime);
+          freeClickLimiter.ratio.setValueAtTime(20,ac.currentTime);
+          freeClickLimiter.attack.setValueAtTime(.0005,ac.currentTime);
+          freeClickLimiter.release.setValueAtTime(.09,ac.currentTime);
+          freeClickMaster=ac.createGain();
+          freeClickMaster.gain.setValueAtTime(.82,ac.currentTime);
+          freeClickLimiter.connect(freeClickMaster).connect(ac.destination);
+        }
+        const source=ac.createBufferSource(),gain=ac.createGain();
+        source.buffer=freeClickBuffer;
+        gain.gain.setValueAtTime(.42,time);
+        source.connect(gain).connect(freeClickLimiter);
+        source.start(time);
+      }
       function sound(time,kind){
         if(state.muted||kind==="rest")return;
-        const ac=getAudio(),osc=ac.createOscillator(),gain=ac.createGain();
-        let f=kind==="accent"?1450:kind==="normal"?970:620, v=kind==="accent"?1:kind==="normal"?.65:.26, d=.052;
+        const ac=getAudio();
+        if(state.mode==="custom"){fixedFreeClick(ac,time);return;}
+        const osc=ac.createOscillator(),gain=ac.createGain();
+        let f=kind==="accent"?1450:kind==="normal"?970:620,v=kind==="accent"?1:kind==="normal"?.65:.26,d=.052;
         if(state.tone==="beep"){osc.type="sine";f=kind==="accent"?1600:kind==="normal"?1050:650;}
         else if(state.tone==="clock"){osc.type="triangle";f=kind==="accent"?1150:kind==="normal"?780:460;d=.026;}
         else osc.type="sine";
@@ -411,7 +445,8 @@
       function renderGrid(){ const grid=$("grid"),stage=$("freeScoreStage");if(stage)stage.style.setProperty("--free-scale",String(state.freeZoom));grid.innerHTML="";const groups=new Map(state.freeGroups.map(group=>[group.start,group]));for(let i=0;i<state.freePattern.length;){const group=groups.get(i);if(group){const node=document.createElement("div");node.id=`free-group-${group.start}`;node.className=`free-tuplet ${state.freePattern[group.start]}`;node.title="Three equal notes in the time of two";const noteHits=Array.from({length:group.count},(_,offset)=>{const index=group.start+offset;return `<button class="tuplet-note-hit${state.slurAnchor===index?" slur-anchor":""}" id="tuplet-note-${index}" type="button" data-index="${index}" aria-label="Tuplet note ${offset+1} of ${group.count}"></button>`;}).join("");node.innerHTML=`<span class="tuplet-free-figure"><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-${group.symbol}"/></svg>${noteHits}</span>`;node.querySelectorAll(".tuplet-note-hit").forEach(hit=>{hit.onclick=event=>{event.stopPropagation();const index=Number(hit.dataset.index);if(selectSlurPoint(index))return;sound(getAudio().currentTime,state.freePattern[index]);};});node.onclick=()=>sound(getAudio().currentTime,state.freePattern[group.start]);grid.appendChild(node);i+=group.count;continue;}const index=i,type=state.freePattern[index],glyph=state.freeGlyphs[index],slot=document.createElement("div");slot.id=`slot-${index}`;slot.className=`slot score-slot ${type}${state.slurAnchor===index?" slur-anchor":""}`;slot.dataset.beat="";slot.dataset.tuplet="";slot.title="Select a different figure, then tap here to replace";slot.innerHTML=`<span class="note-glyph">${glyph}</span>`;slot.onclick=()=>{if(selectSlurPoint(index))return;if(state.selectedTuplet)return;saveCustomHistory();state.freePattern[index]=state.selectedRest?"rest":index===0?"accent":"normal";state.freeGlyphs[index]=state.selectedGlyph;state.freeDurations[index]=state.selectedUnits;renderGrid();sound(getAudio().currentTime,state.freePattern[index]);};grid.appendChild(slot);i++;}const add=document.createElement("div");add.id="slot-add";add.className="slot score-slot empty add-slot";add.title="Append the selected note or rest";add.innerHTML='<span class="note-glyph"></span>';add.onclick=()=>{saveCustomHistory();const start=state.freePattern.length;if(state.selectedTuplet){for(let i=0;i<3;i++){state.freePattern.push(start===0&&i===0?"accent":"normal");state.freeGlyphs.push(state.selectedGlyph);state.freeDurations.push(state.selectedUnits);}state.freeGroups.push({start,count:3,symbol:state.selectedTuplet});}else{state.freePattern.push(state.selectedRest?"rest":start===0?"accent":"normal");state.freeGlyphs.push(state.selectedGlyph);state.freeDurations.push(state.selectedUnits);}renderGrid();sound(getAudio().currentTime,state.freePattern.at(-1));};grid.appendChild(add);renderSlurs(grid);applyFreeZoom(); }
       function clearActive(){document.querySelectorAll(".slot,.rhythm-pad,.tuplet-note-hit,.free-slur").forEach(x=>x.classList.remove("playing"));}
       function highlight(i){clearActive();if(state.mode==="standard"){const slot=$(`standard-slot-${i}`);if(slot)slot.classList.add("playing");return;}const slur=slurStartingAt(i);if(slur){for(let index=slur.from;index<=slur.to;index++)freeNode(index)?.classList.add("playing");document.querySelector(`.free-slur[data-from="${slur.from}"][data-to="${slur.to}"]`)?.classList.add("playing");return;}freeNode(i)?.classList.add("playing");}
-      function setMode(mode){ if(state.mode===mode)return;stop();state.mode=mode;$("signature").disabled=mode==="custom";$("standardMode").classList.toggle("active",mode==="standard");$("customMode").classList.toggle("active",mode==="custom");$("standardSystem").classList.toggle("active",mode==="standard");$("customSystem").classList.toggle("active",mode==="custom");if(mode==="standard")configureStandardRhythm(state.selectedUnits); }
+      function revealFreeRhythm(){ requestAnimationFrame(()=>$("freeStaff").scrollIntoView({behavior:"smooth",block:"center"})); }
+      function setMode(mode){ if(state.mode===mode){if(mode==="custom"){renderGrid();revealFreeRhythm();}return;}stop();state.mode=mode;$("signature").disabled=mode==="custom";$("standardMode").classList.toggle("active",mode==="standard");$("customMode").classList.toggle("active",mode==="custom");$("standardSystem").classList.toggle("active",mode==="standard");$("customSystem").classList.toggle("active",mode==="custom");if(mode==="standard")configureStandardRhythm(state.selectedUnits);else{renderGrid();revealFreeRhythm();} }
       function resetPlayback(){ step=0;clearActive();if(ctx)nextTime=ctx.currentTime+.03; }
       function resetApplication(){
         stop();

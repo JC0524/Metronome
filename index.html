@@ -151,9 +151,10 @@
     .volume-control { padding: 5px 7px; }
     .volume-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .volume-head .control-title { margin: 0; }
-    .sound-enable { min-height: 21px; padding: 2px 7px; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--yellow); color: var(--ink); font: 700 .48rem "Space Mono", monospace; letter-spacing: .04em; }
-    .sound-enable.ready { background: var(--green); }
-    #volumeRange { width: 100%; height: 18px; accent-color: var(--coral); }
+    .sound-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: min(128px, 58%); }
+    .sound-option { min-height: 26px; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--paper); color: var(--ink); font: 700 .5rem "Space Mono", monospace; letter-spacing: .05em; }
+    .sound-option.active { background: var(--green); box-shadow: inset 0 0 0 1px var(--paper); }
+    .sound-option:not(.active):hover { background: var(--yellow); }
     .control-title { font-family: "Bungee", sans-serif; font-size: .56rem; margin-bottom: 3px; }
     select {
       width: 100%; min-height: 25px; padding: 0 2px; color: var(--ink); background: transparent; border: 0; border-radius: 4px; font: 700 .62rem "Space Mono", monospace; cursor: pointer;
@@ -328,12 +329,14 @@
         <div class="preset-control"><div class="control-title">TEMPO PRESET</div><select id="tempoPreset" aria-label="Tempo preset"><option value="15">LARGHISSIMO — under 20</option><option value="30">GRAVE — 20–40</option><option value="43">LENTO — 40–45</option><option value="48">LARGO — 45–50</option><option value="53">LARGHETTO — 50–55</option><option value="60" selected>ADAGIO — 55–65</option><option value="75">ANDANTE — 73–77</option><option value="81">ANDANTINO — 78–83</option><option value="92">MODERATO — 86–97</option><option value="104">ALLEGRETTO — 98–109</option><option value="120">ALLEGRO — 109–132</option><option value="136">VIVACE — 132–140</option><option value="172">PRESTO — 168–177</option><option value="180">PRESTISSIMO — 178+</option></select></div>
         <div class="metre-control"><div class="control-title">METRE</div><select id="signature" aria-label="Time signature"><option>2/2</option><option>2/4</option><option>3/4</option><option selected>4/4</option><option>5/4</option><option>6/8</option><option>7/8</option><option>9/8</option><option>12/8</option></select></div>
         <div class="note-expander note-control" id="noteExpander"><button class="note-expander-toggle" id="noteToggle" type="button" aria-expanded="false" aria-controls="notePicker" aria-label="Note value"><span class="note-expander-title" id="noteToggleTitle">NOTE</span><span class="note-summary" aria-hidden="true"><span class="note-summary-glyph" id="noteSummaryGlyph"></span></span><span class="note-toggle-icon" aria-hidden="true">+</span></button><div class="note-picker" id="notePicker" role="group" aria-label="Note value" inert><div class="note-family"><div class="note-family-title">STANDARD NOTES</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝄺" aria-label="Breve note"><span class="engraved-glyph ">𝄺</span><span class="note-caption">BREVE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅝" aria-label="Whole note"><span class="engraved-glyph ">𝅝</span><span class="note-caption">WHOLE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥" aria-label="Half note"><span class="engraved-glyph ">𝅗𝅥</span><span class="note-caption">HALF</span></button><button class="note-tile active" type="button" data-sub="1" data-glyph="𝅘𝅥" aria-label="Quarter note"><span class="engraved-glyph ">𝅘𝅥</span><span class="note-caption">¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮" aria-label="Eighth note"><span class="engraved-glyph ">𝅘𝅥𝅮</span><span class="note-caption">⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯" aria-label="Sixteenth note"><span class="engraved-glyph ">𝅘𝅥𝅯</span><span class="note-caption">1/16</span></button><button class="note-tile" type="button" data-sub="8" data-glyph="𝅘𝅥𝅰" aria-label="Thirty-second note"><span class="engraved-glyph ">𝅘𝅥𝅰</span><span class="note-caption">1/32</span></button><button class="note-tile" type="button" data-sub="16" data-glyph="𝅘𝅥𝅱" aria-label="Sixty-fourth note"><span class="engraved-glyph ">𝅘𝅥𝅱</span><span class="note-caption">1/64</span></button><button class="note-tile" type="button" data-sub="32" data-glyph="𝅘𝅥𝅲" aria-label="One hundred twenty-eighth note"><span class="engraved-glyph ">𝅘𝅥𝅲</span><span class="note-caption">1/128</span></button></div></div><div class="note-family"><div class="note-family-title">STANDARD RESTS</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝄺" data-rest="true" aria-label="Breve rest"><span class="engraved-glyph ">𝄺</span><span class="note-caption">BREVE R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄻" data-rest="true" aria-label="Whole rest"><span class="engraved-glyph ">𝄻</span><span class="note-caption">WHOLE R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄼" data-rest="true" aria-label="Half rest"><span class="engraved-glyph ">𝄼</span><span class="note-caption">HALF R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄽" data-rest="true" aria-label="Quarter rest"><span class="engraved-glyph ">𝄽</span><span class="note-caption">¼ REST</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝄾" data-rest="true" aria-label="Eighth rest"><span class="engraved-glyph ">𝄾</span><span class="note-caption">⅛ REST</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝄿" data-rest="true" aria-label="Sixteenth rest"><span class="engraved-glyph ">𝄿</span><span class="note-caption">R16</span></button><button class="note-tile" type="button" data-sub="8" data-glyph="𝅀" data-rest="true" aria-label="Thirty-second rest"><span class="engraved-glyph ">𝅀</span><span class="note-caption">R32</span></button><button class="note-tile" type="button" data-sub="16" data-glyph="𝅁" data-rest="true" aria-label="Sixty-fourth rest"><span class="engraved-glyph ">𝅁</span><span class="note-caption">R64</span></button></div></div><div class="note-family"><div class="note-family-title">DOTTED NOTES</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝅝·" aria-label="Dotted whole note"><span class="engraved-glyph dotted">𝅝</span><span class="note-caption">D WHOLE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥·" aria-label="Dotted half note"><span class="engraved-glyph dotted">𝅗𝅥</span><span class="note-caption">D HALF</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅘𝅥·" aria-label="Dotted quarter note"><span class="engraved-glyph dotted">𝅘𝅥</span><span class="note-caption">D ¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮·" aria-label="Dotted eighth note"><span class="engraved-glyph dotted">𝅘𝅥𝅮</span><span class="note-caption">D ⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯·" aria-label="Dotted sixteenth note"><span class="engraved-glyph dotted">𝅘𝅥𝅯</span><span class="note-caption">D 1/16</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥··" aria-label="Double-dotted half note"><span class="engraved-glyph double-dotted">𝅗𝅥</span><span class="note-caption">DD HALF</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅘𝅥··" aria-label="Double-dotted quarter note"><span class="engraved-glyph double-dotted">𝅘𝅥</span><span class="note-caption">DD ¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮··" aria-label="Double-dotted eighth note"><span class="engraved-glyph double-dotted">𝅘𝅥𝅮</span><span class="note-caption">DD ⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯··" aria-label="Double-dotted sixteenth note"><span class="engraved-glyph double-dotted">𝅘𝅥𝅯</span><span class="note-caption">DD 1/16</span></button></div></div><div class="note-family"><div class="note-family-title">TUPLETS · 3 IN THE TIME OF 2</div><div class="note-grid"><button class="note-tile" type="button" data-sub="3" data-glyph="𝅘𝅥𝅮" aria-label="Eighth-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-eighth"/></svg></span><span class="note-caption">⅛ 3:2</span></button><button class="note-tile" type="button" data-sub="6" data-glyph="𝅘𝅥𝅯" aria-label="Sixteenth-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-sixteenth"/></svg></span><span class="note-caption">1/16 3:2</span></button><button class="note-tile" type="button" data-sub="12" data-glyph="𝅘𝅥𝅰" aria-label="Thirty-second-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-32"/></svg></span><span class="note-caption">1/32 3:2</span></button></div></div></div></div>
-        <div class="volume-control" aria-label="Sound and volume">
+        <div class="volume-control" aria-label="Sound">
           <div class="volume-head">
-            <div class="control-title"><span id="volumeTitle">VOLUME</span> • <span id="volumeReadout">100%</span></div>
-            <button class="sound-enable" id="audioUnlock" type="button" aria-pressed="false">SOUND</button>
+            <div class="control-title" id="soundTitle">SOUND</div>
+            <div class="sound-switch" role="group" aria-label="Sound">
+              <button class="sound-option active" id="soundOn" type="button" aria-pressed="true">ON</button>
+              <button class="sound-option" id="soundOff" type="button" aria-pressed="false">OFF</button>
+            </div>
           </div>
-          <input id="volumeRange" type="range" min="0" max="100" value="100" aria-label="Volume">
         </div>
       </div>
     </section>
@@ -362,14 +365,14 @@
   <script>
     (() => {
       "use strict";
-      const state = { playing:false, starting:false, muted:false, volume:1, audioUnlocked:false, bpm:60, beats:4, sub:1, standardUnits:1, standardCompatible:true, standardTuplet:false, standardCompound:false, mode:"standard", standardPattern:[], freePattern:[], freeGlyphs:[], freeDurations:[], freeGroups:[], freeSlurs:[], freeHistory:[], freeRedoHistory:[], slurMode:false, slurAnchor:null, freeZoom:1, selectedGlyph:"𝅘𝅥", selectedRest:false, selectedTuplet:"", selectedUnits:1, tone:"wood" };
-            let ctx, timer, nextTime=0, step=0, freeClickBuffer=null, freeClickLimiter=null, masterGain=null, audioUnlockPromise=null;
+      const state = { playing:false, starting:false, muted:false, audioUnlocked:false, bpm:60, beats:4, sub:1, standardUnits:1, standardCompatible:true, standardTuplet:false, standardCompound:false, mode:"standard", standardPattern:[], freePattern:[], freeGlyphs:[], freeDurations:[], freeGroups:[], freeSlurs:[], freeHistory:[], freeRedoHistory:[], slurMode:false, slurAnchor:null, freeZoom:1, selectedGlyph:"𝅘𝅥", selectedRest:false, selectedTuplet:"", selectedUnits:1, tone:"wood" };
+            let ctx, timer, nextTime=0, step=0, freeClickBuffer=null, freeClickLimiter=null, masterGain=null, audioUnlockPromise=null, iosSilentAudio=null;
       const $ = id => document.getElementById(id);
-      const labels={en:{play:"PLAY",stop:"STOP",restart:"RESTART",volume:"VOLUME",sound:"SOUND",soundOn:"SOUND ON",soundBlocked:"TAP SOUND",tempo:"TEMPO",preset:"TEMPO PRESET",metre:"METRE",noteValue:"NOTE",standard:"STANDARD RHYTHM",custom:"CUSTOM BAR",free:"FREE RHYTHM",reset:"RESET",mute:"MUTE",clear:"CLEAR",undo:"UNDO",redo:"REDO",fit:"FIT",standardFoot:"",standardInvalid:"USE CUSTOM BAR",freeFoot:"SLUR = ONE PULSE • TAP A CURVE TO REMOVE • NO METRE",families:["STANDARD NOTES","STANDARD RESTS","DOTTED NOTES","TUPLETS · 3 IN THE TIME OF 2"],credit:"Developed by Joe Chan"},zh:{play:"播放",stop:"停止",restart:"重播",volume:"音量",sound:"啟用聲音",soundOn:"聲音已開",soundBlocked:"點按聲音",tempo:"速度",preset:"速度預設",metre:"拍號",noteValue:"音符",standard:"標準節奏",custom:"自訂節奏",free:"自由節奏",reset:"重設",mute:"靜音",clear:"清除",undo:"復原",redo:"重做",fit:"全覽",standardFoot:"",standardInvalid:"請使用自訂節奏",freeFoot:"連結 = 一個拍點 • 點按弧線可移除 • 無拍號",families:["標準音符","標準休止符","附點音符","三連音 · 三個音佔兩個音的時值"],credit:"由 Joe Chan 開發"}};
+      const labels={en:{play:"PLAY",stop:"STOP",restart:"RESTART",volume:"VOLUME",sound:"SOUND",soundOn:"ON",soundOff:"OFF",soundBlocked:"TAP SOUND",tempo:"TEMPO",preset:"TEMPO PRESET",metre:"METRE",noteValue:"NOTE",standard:"STANDARD RHYTHM",custom:"CUSTOM BAR",free:"FREE RHYTHM",reset:"RESET",mute:"MUTE",clear:"CLEAR",undo:"UNDO",redo:"REDO",fit:"FIT",standardFoot:"",standardInvalid:"USE CUSTOM BAR",freeFoot:"SLUR = ONE PULSE • TAP A CURVE TO REMOVE • NO METRE",families:["STANDARD NOTES","STANDARD RESTS","DOTTED NOTES","TUPLETS · 3 IN THE TIME OF 2"],credit:"Developed by Joe Chan"},zh:{play:"播放",stop:"停止",restart:"重播",volume:"音量",sound:"聲音",soundOn:"開",soundOff:"關",soundBlocked:"點按聲音",tempo:"速度",preset:"速度預設",metre:"拍號",noteValue:"音符",standard:"標準節奏",custom:"自訂節奏",free:"自由節奏",reset:"重設",mute:"靜音",clear:"清除",undo:"復原",redo:"重做",fit:"全覽",standardFoot:"",standardInvalid:"請使用自訂節奏",freeFoot:"連結 = 一個拍點 • 點按弧線可移除 • 無拍號",families:["標準音符","標準休止符","附點音符","三連音 · 三個音佔兩個音的時值"],credit:"由 Joe Chan 開發"}};
       const captionZh={"BREVE":"二全音符","WHOLE":"全音符","HALF":"二分","¼":"四分","⅛":"八分","1/16":"十六分","1/32":"三十二分","1/64":"六十四分","1/128":"一百二十八分","BREVE R":"二全休","WHOLE R":"全休","HALF R":"二分休","¼ REST":"四分休","⅛ REST":"八分休","R16":"十六分休","R32":"三十二分休","R64":"六十四分休","D WHOLE":"附點全","D HALF":"附點二分","D ¼":"附點四分","D ⅛":"附點八分","D 1/16":"附點十六分","DD HALF":"雙附點二分","DD ¼":"雙附點四分","DD ⅛":"雙附點八分","DD 1/16":"雙附點十六分"};
       let language="zh";
       function ui(){return labels[language];}
-      function applyLanguage(lang){language=lang;const t=ui(),titles=document.querySelectorAll(".control-title"),families=document.querySelectorAll(".note-family-title"),barTitles=document.querySelectorAll(".bar-header h2"),barFeet=document.querySelectorAll(".bar-foot");$("play").textContent=state.playing?t.stop:t.play;$("reset").textContent=t.reset;titles[0].innerHTML=`${t.tempo} • <span id="bpm">${state.bpm}</span> BPM`;titles[1].textContent=t.preset;titles[2].textContent=t.metre;$("volumeTitle").textContent=t.volume;$("noteToggleTitle").textContent=t.noteValue;$("noteToggle").setAttribute("aria-label",t.noteValue);$("standardMode").textContent=t.standard;$("customMode").textContent=t.custom;barTitles[0].textContent=t.standard;barTitles[1].textContent=t.free;$("standardReset").textContent=t.reset;$("standardMute").textContent=t.mute;$("customUndo").textContent=t.undo;$("customUndo").title=language==="zh"?"復原上一步自訂節奏編輯":"Undo last Custom Bar edit";$("customRedo").textContent=t.redo;$("customRedo").title=language==="zh"?"重做下一步自訂節奏編輯":"Redo next Custom Bar edit";$("customFit").textContent=t.fit;$("customFit").title=language==="zh"?"縮小節奏以全覽":"Fit rhythm to screen";$("customFit").setAttribute("aria-label",$("customFit").title);$("customZoomOut").title=language==="zh"?"縮小節奏":"Zoom out rhythm";$("customZoomOut").setAttribute("aria-label",$("customZoomOut").title);$("customZoomIn").title=language==="zh"?"放大節奏":"Zoom in rhythm";$("customZoomIn").setAttribute("aria-label",$("customZoomIn").title);$("customClear").textContent=t.clear;updateUndoButton();updateSlurTool();barFeet[0].textContent=t.standardFoot;barFeet[1].textContent=t.freeFoot;families.forEach((node,i)=>node.textContent=t.families[i]);document.querySelectorAll(".note-caption").forEach(node=>{node.dataset.en??=node.textContent;node.textContent=lang==="zh"?(captionZh[node.dataset.en]||node.dataset.en):node.dataset.en;});document.querySelector(".credit").textContent=t.credit;updateNoteSummary(document.querySelector(".note-tile.active")||document.querySelector(".note-tile"));renderStandardGrid();$("langEn").classList.toggle("active",lang==="en");$("langZh").classList.toggle("active",lang==="zh");$("langEn").setAttribute("aria-pressed",lang==="en");$("langZh").setAttribute("aria-pressed",lang==="zh");updateAudioControl();}
+      function applyLanguage(lang){language=lang;const t=ui(),titles=document.querySelectorAll(".control-title"),families=document.querySelectorAll(".note-family-title"),barTitles=document.querySelectorAll(".bar-header h2"),barFeet=document.querySelectorAll(".bar-foot");$("play").textContent=state.playing?t.stop:t.play;$("reset").textContent=t.reset;titles[0].innerHTML=`${t.tempo} • <span id="bpm">${state.bpm}</span> BPM`;titles[1].textContent=t.preset;titles[2].textContent=t.metre;$("soundTitle").textContent=t.sound;$("soundOn").textContent=t.soundOn;$("soundOff").textContent=t.soundOff;$("noteToggleTitle").textContent=t.noteValue;$("noteToggle").setAttribute("aria-label",t.noteValue);$("standardMode").textContent=t.standard;$("customMode").textContent=t.custom;barTitles[0].textContent=t.standard;barTitles[1].textContent=t.free;$("standardReset").textContent=t.reset;$("standardMute").textContent=t.mute;$("customUndo").textContent=t.undo;$("customUndo").title=language==="zh"?"復原上一步自訂節奏編輯":"Undo last Custom Bar edit";$("customRedo").textContent=t.redo;$("customRedo").title=language==="zh"?"重做下一步自訂節奏編輯":"Redo next Custom Bar edit";$("customFit").textContent=t.fit;$("customFit").title=language==="zh"?"縮小節奏以全覽":"Fit rhythm to screen";$("customFit").setAttribute("aria-label",$("customFit").title);$("customZoomOut").title=language==="zh"?"縮小節奏":"Zoom out rhythm";$("customZoomOut").setAttribute("aria-label",$("customZoomOut").title);$("customZoomIn").title=language==="zh"?"放大節奏":"Zoom in rhythm";$("customZoomIn").setAttribute("aria-label",$("customZoomIn").title);$("customClear").textContent=t.clear;updateUndoButton();updateSlurTool();barFeet[0].textContent=t.standardFoot;barFeet[1].textContent=t.freeFoot;families.forEach((node,i)=>node.textContent=t.families[i]);document.querySelectorAll(".note-caption").forEach(node=>{node.dataset.en??=node.textContent;node.textContent=lang==="zh"?(captionZh[node.dataset.en]||node.dataset.en):node.dataset.en;});document.querySelector(".credit").textContent=t.credit;updateNoteSummary(document.querySelector(".note-tile.active")||document.querySelector(".note-tile"));renderStandardGrid();$("langEn").classList.toggle("active",lang==="en");$("langZh").classList.toggle("active",lang==="zh");$("langEn").setAttribute("aria-pressed",lang==="en");$("langZh").setAttribute("aria-pressed",lang==="zh");updateAudioControl();}
       function getAudio(){
         if(!ctx){
           const AudioContextClass=window.AudioContext||window.webkitAudioContext;
@@ -378,29 +381,55 @@
         }
         return ctx;
       }
+      function configureSafariPlaybackSession(){
+        // Safari 17+ can route Web Audio through the iOS playback channel, so it
+        // remains audible when the iPhone Ring/Silent switch is enabled.
+        const session=navigator.audioSession;
+        if(session&&"type" in session){try{session.type="playback";}catch(_error){}}
+      }
+      function isIOSDevice(){
+        return /iPad|iPhone|iPod/.test(navigator.userAgent)||
+          (navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+      }
+      function silentAudioDataUrl(sampleRate){
+        const bytes=new ArrayBuffer(10),view=new DataView(bytes);
+        view.setUint32(0,sampleRate,true);view.setUint32(4,sampleRate,true);view.setUint16(8,1,true);
+        const header=btoa(String.fromCharCode(...new Uint8Array(bytes))).slice(0,13);
+        return `data:audio/wav;base64,UklGRisAAABXQVZFZm10IBAAAAABAAEA${header}AgAZGF0YQcAAACAgICAgICAAAA=`;
+      }
+      function activateSafariFallback(ac){
+        configureSafariPlaybackSession();
+        if(!isIOSDevice())return;
+        if(!iosSilentAudio){
+          iosSilentAudio=document.createElement("audio");
+          iosSilentAudio.loop=true;iosSilentAudio.preload="auto";iosSilentAudio.playsInline=true;
+          iosSilentAudio.setAttribute("playsinline","");iosSilentAudio.setAttribute("webkit-playsinline","");
+          iosSilentAudio.setAttribute("x-webkit-airplay","deny");iosSilentAudio.src=silentAudioDataUrl(ac.sampleRate);
+        }
+        const playback=iosSilentAudio.play();
+        if(playback&&typeof playback.catch==="function")playback.catch(()=>{});
+      }
       function audioBus(ac){
         if(!masterGain){
           masterGain=ac.createGain();
-          masterGain.gain.setValueAtTime(state.volume,ac.currentTime);
+          masterGain.gain.setValueAtTime(state.muted?0:1,ac.currentTime);
           masterGain.connect(ac.destination);
         }
         return masterGain;
       }
-      function setVolume(value){
-        const percent=Math.max(0,Math.min(100,Math.round(Number(value))));
-        state.volume=percent/100;
-        $("volumeRange").value=String(percent);
-        $("volumeReadout").textContent=`${percent}%`;
-        if(ctx&&masterGain)masterGain.gain.setTargetAtTime(state.volume,ctx.currentTime,.01);
+      function setSoundEnabled(enabled){
+        state.muted=!enabled;
+        if(ctx&&masterGain)masterGain.gain.setTargetAtTime(enabled?1:0,ctx.currentTime,.01);
+        updateAudioControl();
       }
       function updateAudioControl(){
-        const button=$("audioUnlock");
-        if(!button)return;
-        const ready=Boolean(ctx&&ctx.state==="running"&&state.audioUnlocked);
-        button.classList.toggle("ready",ready);
-        button.textContent=ready?ui().soundOn:ui().sound;
-        button.setAttribute("aria-pressed",String(ready));
-        button.title=ready?(language==="zh"?"聲音已啟用":"Sound is enabled"):(language==="zh"?"點按以啟用手機聲音":"Tap to enable phone sound");
+        const on=$("soundOn"),off=$("soundOff");
+        if(!on||!off)return;
+        const enabled=!state.muted;
+        on.classList.toggle("active",enabled);off.classList.toggle("active",!enabled);
+        on.setAttribute("aria-pressed",String(enabled));off.setAttribute("aria-pressed",String(!enabled));
+        on.title=language==="zh"?"開啟聲音":"Turn sound on";
+        off.title=language==="zh"?"關閉聲音":"Turn sound off";
       }
       function primeAudio(ac){
         const source=ac.createBufferSource(),gain=ac.createGain();
@@ -411,8 +440,10 @@
       }
       function unlockAudio(){
         if(audioUnlockPromise)return audioUnlockPromise;
+        configureSafariPlaybackSession();
         const ac=getAudio();
         if(!ac)return Promise.resolve(null);
+        activateSafariFallback(ac);
         // The first source starts inside a touch/click handler, which is required by iOS Safari.
         primeAudio(ac);
         audioUnlockPromise=(async()=>{
@@ -425,10 +456,12 @@
         return audioUnlockPromise;
       }
       async function enableSound(){
+        setSoundEnabled(true);
         const ac=await unlockAudio();
         if(!ac)return;
         sound(ac.currentTime+.025,"normal");
       }
+      function disableSound(){ setSoundEnabled(false); }
       function audition(kind){
         unlockAudio().then(ac=>{if(ac)sound(ac.currentTime+.01,kind);});
       }
@@ -533,15 +566,15 @@
       function resetApplication(){
         stop();
         state.bpm=60;state.beats=4;state.sub=1;state.standardUnits=1;state.standardCompatible=true;state.standardTuplet=false;state.standardCompound=false;
-        state.muted=false;state.volume=1;state.selectedGlyph="𝅘𝅥";state.selectedRest=false;state.selectedTuplet="";state.selectedUnits=1;state.tone="wood";
+        state.muted=false;state.selectedGlyph="𝅘𝅥";state.selectedRest=false;state.selectedTuplet="";state.selectedUnits=1;state.tone="wood";
         state.freePattern=[];state.freeGlyphs=[];state.freeDurations=[];state.freeGroups=[];state.freeSlurs=[];state.freeHistory=[];state.freeRedoHistory=[];state.slurMode=false;state.slurAnchor=null;state.freeZoom=1;
-        $("tempoRange").value="60";$("tempoPreset").value="60";$("signature").value="4/4";$("volumeRange").value="100";$("signature").disabled=false;
+        $("tempoRange").value="60";$("tempoPreset").value="60";$("signature").value="4/4";$("signature").disabled=false;
         document.querySelectorAll(".note-tile").forEach(tile=>tile.classList.toggle("active",tile.getAttribute("aria-label")==="Quarter note"));
         const expander=$("noteExpander"),picker=$("notePicker");expander.classList.remove("open");$("noteToggle").setAttribute("aria-expanded","false");picker.setAttribute("inert","");
         state.mode="standard";$("standardMode").classList.add("active");$("customMode").classList.remove("active");$("standardSystem").classList.add("active");$("customSystem").classList.remove("active");
-        setBpm(60);setVolume(100);configureStandardRhythm(1);renderGrid();updateUndoButton();updateSlurTool();applyLanguage("zh");resetPlayback();
+        setBpm(60);setSoundEnabled(true);configureStandardRhythm(1);renderGrid();updateUndoButton();updateSlurTool();applyLanguage("zh");resetPlayback();
       }
-$("play").onclick=toggle;$("reset").onclick=resetApplication;$("tempoRange").oninput=e=>setBpm(e.target.value);$("tempoPreset").onchange=e=>setBpm(e.target.value);$("volumeRange").oninput=e=>setVolume(e.target.value);$("audioUnlock").onclick=enableSound;
+$("play").onclick=toggle;$("reset").onclick=resetApplication;$("tempoRange").oninput=e=>setBpm(e.target.value);$("tempoPreset").onchange=e=>setBpm(e.target.value);$("soundOn").onclick=enableSound;$("soundOff").onclick=disableSound;
       $("signature").onchange=()=>configureStandardRhythm(state.standardUnits);
       document.querySelectorAll(".note-tile").forEach(button=>{button.dataset.duration=selectedDuration(button);button.onclick=()=>{const name=button.getAttribute("aria-label").toLowerCase();state.selectedGlyph=button.dataset.glyph;state.selectedRest=button.dataset.rest==="true";state.selectedTuplet=name.includes("thirty-second-note triplet")?"32":name.includes("sixteenth-note triplet")?"sixteenth":name.includes("eighth-note triplet")?"eighth":"";state.standardTuplet=Boolean(state.selectedTuplet);state.selectedUnits=Number(button.dataset.duration);document.querySelectorAll(".note-tile").forEach(tile=>tile.classList.toggle("active",tile===button));updateNoteSummary(button);if(state.mode==="standard")configureStandardRhythm(state.selectedUnits);else renderGrid();};});
       $("noteToggle").onclick=()=>{const expander=$("noteExpander"),picker=$("notePicker"),open=!expander.classList.contains("open");expander.classList.toggle("open",open);$("noteToggle").setAttribute("aria-expanded",String(open));picker.toggleAttribute("inert",!open);};
@@ -550,7 +583,7 @@ $("play").onclick=toggle;$("reset").onclick=resetApplication;$("tempoRange").oni
       $("customUndo").onclick=restoreCustomHistory;$("customRedo").onclick=restoreCustomRedo;$("customFit").onclick=fitFreeRhythm;$("customZoomOut").onclick=()=>changeFreeZoom(-.1);$("customZoomIn").onclick=()=>changeFreeZoom(.1);$("customClear").onclick=clearCustomPattern;$("customSlur").onclick=()=>{state.slurMode=!state.slurMode;state.slurAnchor=null;updateSlurTool();renderGrid();};
       $("langEn").onclick=()=>applyLanguage("en");$("langZh").onclick=()=>applyLanguage("zh");
       document.addEventListener("pointerdown",()=>{unlockAudio();},{once:true,passive:true});document.addEventListener("touchstart",()=>{unlockAudio();},{once:true,passive:true});document.addEventListener("visibilitychange",updateAudioControl);window.onkeydown=e=>{if(e.code==="Space"&&!["INPUT","SELECT"].includes(e.target.tagName)){e.preventDefault();toggle();}};
-      setBpm(state.bpm);setVolume(100);updateAudioControl();
+      setBpm(state.bpm);setSoundEnabled(true);
       resetAllPatterns();
       updateUndoButton();
       applyLanguage("zh");

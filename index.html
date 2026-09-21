@@ -127,16 +127,18 @@
     #slower { left: 5px; top: calc(50% - 19px); }
     #faster { right: 5px; top: calc(50% - 19px); }
 
-    .control-side { border: 2px solid var(--ink); border-radius: 12px; padding: 9px 10px; display: grid; grid-template-columns: .85fr 1.4fr; grid-template-areas: "tempo preset" "metre note"; gap: 8px 9px; align-items: start; background: #fff; }
+    .control-side { border: 2px solid var(--ink); border-radius: 12px; padding: 9px 10px; display: grid; grid-template-columns: .85fr 1.4fr; grid-template-areas: "tempo preset" "metre note" "volume volume"; gap: 8px 9px; align-items: start; background: #fff; }
     .wide { grid-column: 1 / -1; }
     .tempo-control { grid-area: tempo; }
     .preset-control { grid-area: preset; }
     .metre-control { grid-area: metre; }
     .note-control { grid-area: note; }
+    .volume-control { grid-area: volume; }
     .control-side > .tempo-control,
     .control-side > .preset-control,
     .control-side > .metre-control,
-    .control-side > .note-control {
+    .control-side > .note-control,
+    .control-side > .volume-control {
       min-width: 0;
       min-height: 47px;
       padding: 5px 7px;
@@ -146,6 +148,12 @@
       box-shadow: 0 2px 0 rgba(32,32,32,.18);
     }
     .control-side > .note-control { padding: 3px 4px; }
+    .volume-control { padding: 5px 7px; }
+    .volume-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .volume-head .control-title { margin: 0; }
+    .sound-enable { min-height: 21px; padding: 2px 7px; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--yellow); color: var(--ink); font: 700 .48rem "Space Mono", monospace; letter-spacing: .04em; }
+    .sound-enable.ready { background: var(--green); }
+    #volumeRange { width: 100%; height: 18px; accent-color: var(--coral); }
     .control-title { font-family: "Bungee", sans-serif; font-size: .56rem; margin-bottom: 3px; }
     select {
       width: 100%; min-height: 25px; padding: 0 2px; color: var(--ink); background: transparent; border: 0; border-radius: 4px; font: 700 .62rem "Space Mono", monospace; cursor: pointer;
@@ -271,7 +279,7 @@
       body { padding: 10px 8px 24px; }
       .brandbar { border-radius: 13px; }
       .deck { grid-template-columns: minmax(0, 1fr); gap: 9px; padding: 9px; }
-      .control-side { grid-template-columns: 1fr; grid-template-areas: "tempo" "preset" "metre" "note"; gap: 7px; padding: 9px; }
+      .control-side { grid-template-columns: 1fr; grid-template-areas: "tempo" "preset" "metre" "note" "volume"; gap: 7px; padding: 9px; }
       .transport-bar { top: 6px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 78px; gap: 4px; padding: 4px; }
       .action-button { min-height: 35px; padding: 0 4px; font-size: .5rem; }
       .language-switch { padding: 2px; }
@@ -320,6 +328,13 @@
         <div class="preset-control"><div class="control-title">TEMPO PRESET</div><select id="tempoPreset" aria-label="Tempo preset"><option value="15">LARGHISSIMO — under 20</option><option value="30">GRAVE — 20–40</option><option value="43">LENTO — 40–45</option><option value="48">LARGO — 45–50</option><option value="53">LARGHETTO — 50–55</option><option value="60" selected>ADAGIO — 55–65</option><option value="75">ANDANTE — 73–77</option><option value="81">ANDANTINO — 78–83</option><option value="92">MODERATO — 86–97</option><option value="104">ALLEGRETTO — 98–109</option><option value="120">ALLEGRO — 109–132</option><option value="136">VIVACE — 132–140</option><option value="172">PRESTO — 168–177</option><option value="180">PRESTISSIMO — 178+</option></select></div>
         <div class="metre-control"><div class="control-title">METRE</div><select id="signature" aria-label="Time signature"><option>2/2</option><option>2/4</option><option>3/4</option><option selected>4/4</option><option>5/4</option><option>6/8</option><option>7/8</option><option>9/8</option><option>12/8</option></select></div>
         <div class="note-expander note-control" id="noteExpander"><button class="note-expander-toggle" id="noteToggle" type="button" aria-expanded="false" aria-controls="notePicker" aria-label="Note value"><span class="note-expander-title" id="noteToggleTitle">NOTE</span><span class="note-summary" aria-hidden="true"><span class="note-summary-glyph" id="noteSummaryGlyph"></span></span><span class="note-toggle-icon" aria-hidden="true">+</span></button><div class="note-picker" id="notePicker" role="group" aria-label="Note value" inert><div class="note-family"><div class="note-family-title">STANDARD NOTES</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝄺" aria-label="Breve note"><span class="engraved-glyph ">𝄺</span><span class="note-caption">BREVE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅝" aria-label="Whole note"><span class="engraved-glyph ">𝅝</span><span class="note-caption">WHOLE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥" aria-label="Half note"><span class="engraved-glyph ">𝅗𝅥</span><span class="note-caption">HALF</span></button><button class="note-tile active" type="button" data-sub="1" data-glyph="𝅘𝅥" aria-label="Quarter note"><span class="engraved-glyph ">𝅘𝅥</span><span class="note-caption">¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮" aria-label="Eighth note"><span class="engraved-glyph ">𝅘𝅥𝅮</span><span class="note-caption">⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯" aria-label="Sixteenth note"><span class="engraved-glyph ">𝅘𝅥𝅯</span><span class="note-caption">1/16</span></button><button class="note-tile" type="button" data-sub="8" data-glyph="𝅘𝅥𝅰" aria-label="Thirty-second note"><span class="engraved-glyph ">𝅘𝅥𝅰</span><span class="note-caption">1/32</span></button><button class="note-tile" type="button" data-sub="16" data-glyph="𝅘𝅥𝅱" aria-label="Sixty-fourth note"><span class="engraved-glyph ">𝅘𝅥𝅱</span><span class="note-caption">1/64</span></button><button class="note-tile" type="button" data-sub="32" data-glyph="𝅘𝅥𝅲" aria-label="One hundred twenty-eighth note"><span class="engraved-glyph ">𝅘𝅥𝅲</span><span class="note-caption">1/128</span></button></div></div><div class="note-family"><div class="note-family-title">STANDARD RESTS</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝄺" data-rest="true" aria-label="Breve rest"><span class="engraved-glyph ">𝄺</span><span class="note-caption">BREVE R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄻" data-rest="true" aria-label="Whole rest"><span class="engraved-glyph ">𝄻</span><span class="note-caption">WHOLE R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄼" data-rest="true" aria-label="Half rest"><span class="engraved-glyph ">𝄼</span><span class="note-caption">HALF R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄽" data-rest="true" aria-label="Quarter rest"><span class="engraved-glyph ">𝄽</span><span class="note-caption">¼ REST</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝄾" data-rest="true" aria-label="Eighth rest"><span class="engraved-glyph ">𝄾</span><span class="note-caption">⅛ REST</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝄿" data-rest="true" aria-label="Sixteenth rest"><span class="engraved-glyph ">𝄿</span><span class="note-caption">R16</span></button><button class="note-tile" type="button" data-sub="8" data-glyph="𝅀" data-rest="true" aria-label="Thirty-second rest"><span class="engraved-glyph ">𝅀</span><span class="note-caption">R32</span></button><button class="note-tile" type="button" data-sub="16" data-glyph="𝅁" data-rest="true" aria-label="Sixty-fourth rest"><span class="engraved-glyph ">𝅁</span><span class="note-caption">R64</span></button></div></div><div class="note-family"><div class="note-family-title">DOTTED NOTES</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝅝·" aria-label="Dotted whole note"><span class="engraved-glyph dotted">𝅝</span><span class="note-caption">D WHOLE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥·" aria-label="Dotted half note"><span class="engraved-glyph dotted">𝅗𝅥</span><span class="note-caption">D HALF</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅘𝅥·" aria-label="Dotted quarter note"><span class="engraved-glyph dotted">𝅘𝅥</span><span class="note-caption">D ¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮·" aria-label="Dotted eighth note"><span class="engraved-glyph dotted">𝅘𝅥𝅮</span><span class="note-caption">D ⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯·" aria-label="Dotted sixteenth note"><span class="engraved-glyph dotted">𝅘𝅥𝅯</span><span class="note-caption">D 1/16</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥··" aria-label="Double-dotted half note"><span class="engraved-glyph double-dotted">𝅗𝅥</span><span class="note-caption">DD HALF</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅘𝅥··" aria-label="Double-dotted quarter note"><span class="engraved-glyph double-dotted">𝅘𝅥</span><span class="note-caption">DD ¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮··" aria-label="Double-dotted eighth note"><span class="engraved-glyph double-dotted">𝅘𝅥𝅮</span><span class="note-caption">DD ⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯··" aria-label="Double-dotted sixteenth note"><span class="engraved-glyph double-dotted">𝅘𝅥𝅯</span><span class="note-caption">DD 1/16</span></button></div></div><div class="note-family"><div class="note-family-title">TUPLETS · 3 IN THE TIME OF 2</div><div class="note-grid"><button class="note-tile" type="button" data-sub="3" data-glyph="𝅘𝅥𝅮" aria-label="Eighth-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-eighth"/></svg></span><span class="note-caption">⅛ 3:2</span></button><button class="note-tile" type="button" data-sub="6" data-glyph="𝅘𝅥𝅯" aria-label="Sixteenth-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-sixteenth"/></svg></span><span class="note-caption">1/16 3:2</span></button><button class="note-tile" type="button" data-sub="12" data-glyph="𝅘𝅥𝅰" aria-label="Thirty-second-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-32"/></svg></span><span class="note-caption">1/32 3:2</span></button></div></div></div></div>
+        <div class="volume-control" aria-label="Sound and volume">
+          <div class="volume-head">
+            <div class="control-title"><span id="volumeTitle">VOLUME</span> • <span id="volumeReadout">100%</span></div>
+            <button class="sound-enable" id="audioUnlock" type="button" aria-pressed="false">SOUND</button>
+          </div>
+          <input id="volumeRange" type="range" min="0" max="100" value="100" aria-label="Volume">
+        </div>
       </div>
     </section>
 
@@ -347,15 +362,76 @@
   <script>
     (() => {
       "use strict";
-      const state = { playing:false, muted:false, bpm:60, beats:4, sub:1, standardUnits:1, standardCompatible:true, standardTuplet:false, standardCompound:false, mode:"standard", standardPattern:[], freePattern:[], freeGlyphs:[], freeDurations:[], freeGroups:[], freeSlurs:[], freeHistory:[], freeRedoHistory:[], slurMode:false, slurAnchor:null, freeZoom:1, selectedGlyph:"𝅘𝅥", selectedRest:false, selectedTuplet:"", selectedUnits:1, tone:"wood" };
-            let ctx, timer, nextTime=0, step=0, freeClickBuffer=null, freeClickLimiter=null, freeClickMaster=null;
+      const state = { playing:false, starting:false, muted:false, volume:1, audioUnlocked:false, bpm:60, beats:4, sub:1, standardUnits:1, standardCompatible:true, standardTuplet:false, standardCompound:false, mode:"standard", standardPattern:[], freePattern:[], freeGlyphs:[], freeDurations:[], freeGroups:[], freeSlurs:[], freeHistory:[], freeRedoHistory:[], slurMode:false, slurAnchor:null, freeZoom:1, selectedGlyph:"𝅘𝅥", selectedRest:false, selectedTuplet:"", selectedUnits:1, tone:"wood" };
+            let ctx, timer, nextTime=0, step=0, freeClickBuffer=null, freeClickLimiter=null, masterGain=null, audioUnlockPromise=null;
       const $ = id => document.getElementById(id);
-      const labels={en:{play:"PLAY",stop:"STOP",restart:"RESTART",tempo:"TEMPO",preset:"TEMPO PRESET",metre:"METRE",noteValue:"NOTE",standard:"STANDARD RHYTHM",custom:"CUSTOM BAR",free:"FREE RHYTHM",reset:"RESET",mute:"MUTE",clear:"CLEAR",undo:"UNDO",redo:"REDO",fit:"FIT",standardFoot:"",standardInvalid:"USE CUSTOM BAR",freeFoot:"SLUR = ONE PULSE • TAP A CURVE TO REMOVE • NO METRE",families:["STANDARD NOTES","STANDARD RESTS","DOTTED NOTES","TUPLETS · 3 IN THE TIME OF 2"],credit:"Developed by Joe Chan"},zh:{play:"播放",stop:"停止",restart:"重播",tempo:"速度",preset:"速度預設",metre:"拍號",noteValue:"音符",standard:"標準節奏",custom:"自訂節奏",free:"自由節奏",reset:"重設",mute:"靜音",clear:"清除",undo:"復原",redo:"重做",fit:"全覽",standardFoot:"",standardInvalid:"請使用自訂節奏",freeFoot:"連結 = 一個拍點 • 點按弧線可移除 • 無拍號",families:["標準音符","標準休止符","附點音符","三連音 · 三個音佔兩個音的時值"],credit:"由 Joe Chan 開發"}};
+      const labels={en:{play:"PLAY",stop:"STOP",restart:"RESTART",volume:"VOLUME",sound:"SOUND",soundOn:"SOUND ON",soundBlocked:"TAP SOUND",tempo:"TEMPO",preset:"TEMPO PRESET",metre:"METRE",noteValue:"NOTE",standard:"STANDARD RHYTHM",custom:"CUSTOM BAR",free:"FREE RHYTHM",reset:"RESET",mute:"MUTE",clear:"CLEAR",undo:"UNDO",redo:"REDO",fit:"FIT",standardFoot:"",standardInvalid:"USE CUSTOM BAR",freeFoot:"SLUR = ONE PULSE • TAP A CURVE TO REMOVE • NO METRE",families:["STANDARD NOTES","STANDARD RESTS","DOTTED NOTES","TUPLETS · 3 IN THE TIME OF 2"],credit:"Developed by Joe Chan"},zh:{play:"播放",stop:"停止",restart:"重播",volume:"音量",sound:"啟用聲音",soundOn:"聲音已開",soundBlocked:"點按聲音",tempo:"速度",preset:"速度預設",metre:"拍號",noteValue:"音符",standard:"標準節奏",custom:"自訂節奏",free:"自由節奏",reset:"重設",mute:"靜音",clear:"清除",undo:"復原",redo:"重做",fit:"全覽",standardFoot:"",standardInvalid:"請使用自訂節奏",freeFoot:"連結 = 一個拍點 • 點按弧線可移除 • 無拍號",families:["標準音符","標準休止符","附點音符","三連音 · 三個音佔兩個音的時值"],credit:"由 Joe Chan 開發"}};
       const captionZh={"BREVE":"二全音符","WHOLE":"全音符","HALF":"二分","¼":"四分","⅛":"八分","1/16":"十六分","1/32":"三十二分","1/64":"六十四分","1/128":"一百二十八分","BREVE R":"二全休","WHOLE R":"全休","HALF R":"二分休","¼ REST":"四分休","⅛ REST":"八分休","R16":"十六分休","R32":"三十二分休","R64":"六十四分休","D WHOLE":"附點全","D HALF":"附點二分","D ¼":"附點四分","D ⅛":"附點八分","D 1/16":"附點十六分","DD HALF":"雙附點二分","DD ¼":"雙附點四分","DD ⅛":"雙附點八分","DD 1/16":"雙附點十六分"};
       let language="zh";
       function ui(){return labels[language];}
-      function applyLanguage(lang){language=lang;const t=ui(),titles=document.querySelectorAll(".control-title"),families=document.querySelectorAll(".note-family-title"),barTitles=document.querySelectorAll(".bar-header h2"),barFeet=document.querySelectorAll(".bar-foot");$("play").textContent=state.playing?t.stop:t.play;$("reset").textContent=t.reset;titles[0].innerHTML=`${t.tempo} • <span id="bpm">${state.bpm}</span> BPM`;titles[1].textContent=t.preset;titles[2].textContent=t.metre;$("noteToggleTitle").textContent=t.noteValue;$("noteToggle").setAttribute("aria-label",t.noteValue);$("standardMode").textContent=t.standard;$("customMode").textContent=t.custom;barTitles[0].textContent=t.standard;barTitles[1].textContent=t.free;$("standardReset").textContent=t.reset;$("standardMute").textContent=t.mute;$("customUndo").textContent=t.undo;$("customUndo").title=language==="zh"?"復原上一步自訂節奏編輯":"Undo last Custom Bar edit";$("customRedo").textContent=t.redo;$("customRedo").title=language==="zh"?"重做下一步自訂節奏編輯":"Redo next Custom Bar edit";$("customFit").textContent=t.fit;$("customFit").title=language==="zh"?"縮小節奏以全覽":"Fit rhythm to screen";$("customFit").setAttribute("aria-label",$("customFit").title);$("customZoomOut").title=language==="zh"?"縮小節奏":"Zoom out rhythm";$("customZoomOut").setAttribute("aria-label",$("customZoomOut").title);$("customZoomIn").title=language==="zh"?"放大節奏":"Zoom in rhythm";$("customZoomIn").setAttribute("aria-label",$("customZoomIn").title);$("customClear").textContent=t.clear;updateUndoButton();updateSlurTool();barFeet[0].textContent=t.standardFoot;barFeet[1].textContent=t.freeFoot;families.forEach((node,i)=>node.textContent=t.families[i]);document.querySelectorAll(".note-caption").forEach(node=>{node.dataset.en??=node.textContent;node.textContent=lang==="zh"?(captionZh[node.dataset.en]||node.dataset.en):node.dataset.en;});document.querySelector(".credit").textContent=t.credit;updateNoteSummary(document.querySelector(".note-tile.active")||document.querySelector(".note-tile"));renderStandardGrid();$("langEn").classList.toggle("active",lang==="en");$("langZh").classList.toggle("active",lang==="zh");$("langEn").setAttribute("aria-pressed",lang==="en");$("langZh").setAttribute("aria-pressed",lang==="zh");}
-      function getAudio(){ if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)(); if(ctx.state==="suspended") ctx.resume(); return ctx; }
+      function applyLanguage(lang){language=lang;const t=ui(),titles=document.querySelectorAll(".control-title"),families=document.querySelectorAll(".note-family-title"),barTitles=document.querySelectorAll(".bar-header h2"),barFeet=document.querySelectorAll(".bar-foot");$("play").textContent=state.playing?t.stop:t.play;$("reset").textContent=t.reset;titles[0].innerHTML=`${t.tempo} • <span id="bpm">${state.bpm}</span> BPM`;titles[1].textContent=t.preset;titles[2].textContent=t.metre;$("volumeTitle").textContent=t.volume;$("noteToggleTitle").textContent=t.noteValue;$("noteToggle").setAttribute("aria-label",t.noteValue);$("standardMode").textContent=t.standard;$("customMode").textContent=t.custom;barTitles[0].textContent=t.standard;barTitles[1].textContent=t.free;$("standardReset").textContent=t.reset;$("standardMute").textContent=t.mute;$("customUndo").textContent=t.undo;$("customUndo").title=language==="zh"?"復原上一步自訂節奏編輯":"Undo last Custom Bar edit";$("customRedo").textContent=t.redo;$("customRedo").title=language==="zh"?"重做下一步自訂節奏編輯":"Redo next Custom Bar edit";$("customFit").textContent=t.fit;$("customFit").title=language==="zh"?"縮小節奏以全覽":"Fit rhythm to screen";$("customFit").setAttribute("aria-label",$("customFit").title);$("customZoomOut").title=language==="zh"?"縮小節奏":"Zoom out rhythm";$("customZoomOut").setAttribute("aria-label",$("customZoomOut").title);$("customZoomIn").title=language==="zh"?"放大節奏":"Zoom in rhythm";$("customZoomIn").setAttribute("aria-label",$("customZoomIn").title);$("customClear").textContent=t.clear;updateUndoButton();updateSlurTool();barFeet[0].textContent=t.standardFoot;barFeet[1].textContent=t.freeFoot;families.forEach((node,i)=>node.textContent=t.families[i]);document.querySelectorAll(".note-caption").forEach(node=>{node.dataset.en??=node.textContent;node.textContent=lang==="zh"?(captionZh[node.dataset.en]||node.dataset.en):node.dataset.en;});document.querySelector(".credit").textContent=t.credit;updateNoteSummary(document.querySelector(".note-tile.active")||document.querySelector(".note-tile"));renderStandardGrid();$("langEn").classList.toggle("active",lang==="en");$("langZh").classList.toggle("active",lang==="zh");$("langEn").setAttribute("aria-pressed",lang==="en");$("langZh").setAttribute("aria-pressed",lang==="zh");updateAudioControl();}
+      function getAudio(){
+        if(!ctx){
+          const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+          if(!AudioContextClass)return null;
+          ctx=new AudioContextClass();
+        }
+        return ctx;
+      }
+      function audioBus(ac){
+        if(!masterGain){
+          masterGain=ac.createGain();
+          masterGain.gain.setValueAtTime(state.volume,ac.currentTime);
+          masterGain.connect(ac.destination);
+        }
+        return masterGain;
+      }
+      function setVolume(value){
+        const percent=Math.max(0,Math.min(100,Math.round(Number(value))));
+        state.volume=percent/100;
+        $("volumeRange").value=String(percent);
+        $("volumeReadout").textContent=`${percent}%`;
+        if(ctx&&masterGain)masterGain.gain.setTargetAtTime(state.volume,ctx.currentTime,.01);
+      }
+      function updateAudioControl(){
+        const button=$("audioUnlock");
+        if(!button)return;
+        const ready=Boolean(ctx&&ctx.state==="running"&&state.audioUnlocked);
+        button.classList.toggle("ready",ready);
+        button.textContent=ready?ui().soundOn:ui().sound;
+        button.setAttribute("aria-pressed",String(ready));
+        button.title=ready?(language==="zh"?"聲音已啟用":"Sound is enabled"):(language==="zh"?"點按以啟用手機聲音":"Tap to enable phone sound");
+      }
+      function primeAudio(ac){
+        const source=ac.createBufferSource(),gain=ac.createGain();
+        source.buffer=ac.createBuffer(1,1,ac.sampleRate);
+        gain.gain.setValueAtTime(0,ac.currentTime);
+        source.connect(gain).connect(audioBus(ac));
+        source.start();
+      }
+      function unlockAudio(){
+        if(audioUnlockPromise)return audioUnlockPromise;
+        const ac=getAudio();
+        if(!ac)return Promise.resolve(null);
+        // The first source starts inside a touch/click handler, which is required by iOS Safari.
+        primeAudio(ac);
+        audioUnlockPromise=(async()=>{
+          try{ if(ac.state!=="running")await ac.resume(); }catch(_error){}
+          state.audioUnlocked=ac.state==="running";
+          updateAudioControl();
+          audioUnlockPromise=null;
+          return state.audioUnlocked?ac:null;
+        })();
+        return audioUnlockPromise;
+      }
+      async function enableSound(){
+        const ac=await unlockAudio();
+        if(!ac)return;
+        sound(ac.currentTime+.025,"normal");
+      }
+      function audition(kind){
+        unlockAudio().then(ac=>{if(ac)sound(ac.currentTime+.01,kind);});
+      }
       function meterInfo(){ const [top,bottom]=$("signature").value.split("/").map(Number),compound=bottom===8&&top>=6&&top%3===0;return {top,bottom,compound,beats:compound?top/3:top,beatUnits:(compound?3:1)*(4/bottom),measureUnits:top*(4/bottom)}; }
       function isWholeNumber(value){ return Number.isFinite(value)&&Math.abs(value-Math.round(value))<1e-7; }
       function configureStandardRhythm(units=state.standardUnits){ const meter=meterInfo(),pulses=meter.measureUnits/units,pulsesPerBeat=meter.beatUnits/units;state.standardUnits=units;state.standardCompound=meter.compound;if(!isWholeNumber(pulses)||pulses<1||pulses>256){state.standardCompatible=false;state.beats=0;state.sub=0;state.standardPattern=[];renderStandardGrid();return false;}state.standardCompatible=true;if(isWholeNumber(pulsesPerBeat)&&pulsesPerBeat>=1){state.beats=meter.beats;state.sub=Math.round(pulsesPerBeat);}else{state.beats=Math.round(pulses);state.sub=1;}state.standardPattern=makeStandardPattern();renderStandardGrid();return true; }
@@ -377,16 +453,14 @@
           }
           freeClickBuffer=buffer;
         }
-        if(!freeClickLimiter||!freeClickMaster){
+        if(!freeClickLimiter){
           freeClickLimiter=ac.createDynamicsCompressor();
           freeClickLimiter.threshold.setValueAtTime(-12,ac.currentTime);
           freeClickLimiter.knee.setValueAtTime(0,ac.currentTime);
           freeClickLimiter.ratio.setValueAtTime(20,ac.currentTime);
           freeClickLimiter.attack.setValueAtTime(.0005,ac.currentTime);
           freeClickLimiter.release.setValueAtTime(.09,ac.currentTime);
-          freeClickMaster=ac.createGain();
-          freeClickMaster.gain.setValueAtTime(.82,ac.currentTime);
-          freeClickLimiter.connect(freeClickMaster).connect(ac.destination);
+          freeClickLimiter.connect(audioBus(ac));
         }
         const source=ac.createBufferSource(),gain=ac.createGain();
         source.buffer=freeClickBuffer;
@@ -397,6 +471,7 @@
       function sound(time,kind){
         if(state.muted||kind==="rest")return;
         const ac=getAudio();
+        if(!ac||ac.state!=="running")return;
         if(state.mode==="custom"){fixedFreeClick(ac,time);return;}
         const osc=ac.createOscillator(),gain=ac.createGain();
         let f=kind==="accent"?1450:kind==="normal"?970:620,v=kind==="accent"?1:kind==="normal"?.65:.26,d=.052;
@@ -405,15 +480,22 @@
         else osc.type="sine";
         osc.frequency.setValueAtTime(f,time);osc.frequency.exponentialRampToValueAtTime(Math.max(90,f*.34),time+d);
         gain.gain.setValueAtTime(v,time);gain.gain.exponentialRampToValueAtTime(.001,time+d);
-        osc.connect(gain).connect(ac.destination);osc.start(time);osc.stop(time+d);
+        osc.connect(gain).connect(audioBus(ac));osc.start(time);osc.stop(time+d);
       }
       function slurStartingAt(index){ return state.mode==="custom"?state.freeSlurs.find(slur=>slur.from===index):null; }
       function customPulseUnits(index){ const slur=slurStartingAt(index);if(!slur)return state.freeDurations[index]||1;let units=0;for(let i=slur.from;i<=slur.to;i++)units+=state.freeDurations[i]||1;return units; }
       function schedule(index,time){ const pattern=state.mode==="standard"?state.standardPattern:state.freePattern, kind=pattern[index]||"rest";sound(time,kind);const delay=Math.max(0,(time-ctx.currentTime)*1000);setTimeout(()=>{if(state.playing)highlight(index);},delay); }
       function advance(){ nextTime+=duration();if(state.mode==="standard"){step=(step+1)%total();return;}const slur=slurStartingAt(step);step=(slur?slur.to+1:step+1)%total(); }
       function scheduler(){ while(nextTime<ctx.currentTime+.1){schedule(step,nextTime);advance();} }
-      function start(){ if((state.mode==="custom"&&!state.freePattern.length)||(state.mode==="standard"&&!standardTotal()))return;getAudio();state.playing=true;step=0;nextTime=ctx.currentTime+.05;timer=setInterval(scheduler,25);$("play").textContent=ui().stop;$("play").classList.add("running"); }
-      function stop(){ state.playing=false;clearInterval(timer);$("play").textContent=ui().play;$("play").classList.remove("running");clearActive(); }
+      async function start(){
+        if(state.starting||(state.mode==="custom"&&!state.freePattern.length)||(state.mode==="standard"&&!standardTotal()))return;
+        state.starting=true;
+        const ac=await unlockAudio();
+        state.starting=false;
+        if(!ac||ac.state!=="running")return;
+        state.playing=true;step=0;nextTime=ac.currentTime+.05;timer=setInterval(scheduler,25);$("play").textContent=ui().stop;$("play").classList.add("running");
+      }
+      function stop(){ state.starting=false;state.playing=false;clearInterval(timer);$("play").textContent=ui().play;$("play").classList.remove("running");clearActive(); }
       function toggle(){ state.playing?stop():start(); }
       function setBpm(v){ state.bpm=Math.max(10,Math.min(280,Number(v)));$("bpm").textContent=state.bpm;$("tempoRange").value=state.bpm;$("tempoPreset").value=tempoPresetValue(state.bpm); }
       function makeStandardPattern(){ return Array.from({length:standardTotal()},(_,i)=>state.selectedRest?"rest":i===0?"accent":i%state.sub===0?"normal":"ghost"); }
@@ -428,7 +510,7 @@
       function restoreCustomRedo(){ const snapshot=state.freeRedoHistory.pop();if(!snapshot)return;state.freeHistory.push(customSnapshot());limitHistory(state.freeHistory);applyCustomSnapshot(snapshot); }
       function clearCustomPattern(){ if(!state.freePattern.length)return;saveCustomHistory();if(state.playing)stop();state.freePattern=[];state.freeGlyphs=[];state.freeDurations=[];state.freeGroups=[];state.freeSlurs=[];state.slurAnchor=null;state.slurMode=false;resetPlayback();updateUndoButton();updateSlurTool();renderGrid(); }
       function standardLabel(beat,within){ if(state.standardTuplet){ if(state.sub===1){const group=Math.floor(beat/3)+1,position=beat%3;return position===0?String(group):position===1?"tri":"plet";}if(state.sub===3)return within===0?String(beat+1):within===1?"tri":"plet";if(state.sub===6)return [String(beat+1),"tri","plet","&","tri","plet"][within];if(state.sub===12)return [String(beat+1),"tri","plet","e","tri","plet","&","tri","plet","a","tri","plet"][within];}if(state.sub===1)return String(beat+1);if(within===0)return String(beat+1);if(state.standardCompound&&state.sub===3)return ["","la","li"][within];if(state.sub===2)return "&";if(state.sub===3)return ["","e","a"][within];if(state.sub===4)return ["","e","&","a"][within];if(state.standardCompound&&state.sub===6)return ["","la","li","ta","la","li"][within];return String(within+1); }
-      function renderStandardGrid(){ const grid=$("standardGrid");grid.innerHTML="";grid.style.setProperty("--standard-columns",String(Math.max(1,state.beats)));grid.dataset.dense=state.sub>4?"true":"false";grid.dataset.ultra=state.sub>8?"true":"false";grid.dataset.micro=state.sub>16?"true":"false";if(!state.standardCompatible){grid.innerHTML=`<div class="standard-unavailable">${ui().standardInvalid}</div>`;return;}for(let beat=0;beat<state.beats;beat++){const column=document.createElement("div");column.className="standard-beat";for(let withinBeat=0;withinBeat<state.sub;withinBeat++){const i=beat*state.sub+withinBeat,pad=document.createElement("button"),type=state.standardPattern[i],label=standardLabel(beat,withinBeat);pad.type="button";pad.id=`standard-slot-${i}`;pad.className=`rhythm-pad ${type}`;pad.textContent=label;pad.setAttribute("aria-label",`Beat ${beat+1}, subdivision ${label}`);pad.title="Accent → regular → ghost → rest";pad.onclick=()=>{const next={accent:"normal",normal:"ghost",ghost:"rest",rest:"accent"};state.standardPattern[i]=next[type];renderStandardGrid();sound(getAudio().currentTime,state.standardPattern[i]);};column.appendChild(pad);}grid.appendChild(column);} }
+      function renderStandardGrid(){ const grid=$("standardGrid");grid.innerHTML="";grid.style.setProperty("--standard-columns",String(Math.max(1,state.beats)));grid.dataset.dense=state.sub>4?"true":"false";grid.dataset.ultra=state.sub>8?"true":"false";grid.dataset.micro=state.sub>16?"true":"false";if(!state.standardCompatible){grid.innerHTML=`<div class="standard-unavailable">${ui().standardInvalid}</div>`;return;}for(let beat=0;beat<state.beats;beat++){const column=document.createElement("div");column.className="standard-beat";for(let withinBeat=0;withinBeat<state.sub;withinBeat++){const i=beat*state.sub+withinBeat,pad=document.createElement("button"),type=state.standardPattern[i],label=standardLabel(beat,withinBeat);pad.type="button";pad.id=`standard-slot-${i}`;pad.className=`rhythm-pad ${type}`;pad.textContent=label;pad.setAttribute("aria-label",`Beat ${beat+1}, subdivision ${label}`);pad.title="Accent → regular → ghost → rest";pad.onclick=()=>{const next={accent:"normal",normal:"ghost",ghost:"rest",rest:"accent"};state.standardPattern[i]=next[type];renderStandardGrid();audition(state.standardPattern[i]);};column.appendChild(pad);}grid.appendChild(column);} }
       function updateNoteSummary(button){ if(!button)return;const summary=$("noteSummaryGlyph"),figure=button.querySelector(".music-symbol,.engraved-glyph,.tuplet-symbol");summary.innerHTML="";if(figure)summary.appendChild(figure.cloneNode(true));else summary.textContent=button.dataset.glyph||""; }
       function selectedDuration(button){ const label=button.getAttribute("aria-label").toLowerCase();if(label.includes("eighth-note triplet"))return 1/3;if(label.includes("sixteenth-note triplet"))return 1/6;if(label.includes("thirty-second-note triplet"))return 1/12;let unit=label.includes("breve")?8:label.includes("whole")?4:label.includes("half")?2:label.includes("one hundred twenty-eighth")?1/32:label.includes("sixty-fourth")?1/16:label.includes("thirty-second")?1/8:label.includes("sixteenth")?1/4:label.includes("eighth")?1/2:1;if(label.includes("double-dotted"))unit*=1.75;else if(label.includes("dotted"))unit*=1.5;return unit; }
       function groupBounds(index){ const group=state.freeGroups.find(item=>index>=item.start&&index<item.start+item.count);return group?{from:group.start,to:group.start+group.count-1}:{from:index,to:index}; }
@@ -442,7 +524,7 @@
       function applyFreeZoom(){ const stage=$("freeScoreStage"),grid=$("grid");if(!stage||!grid)return;const scale=state.freeZoom;stage.style.setProperty("--free-scale",scale);stage.style.width=`${Math.ceil(grid.scrollWidth*scale)}px`;stage.style.height=`${Math.ceil(grid.offsetHeight*scale)}px`;updateFreeZoomControls(); }
       function changeFreeZoom(delta){ state.freeZoom=Math.max(.25,Math.min(1,Math.round((state.freeZoom+delta)*100)/100));applyFreeZoom(); }
       function fitFreeRhythm(){ const stage=$("freeScoreStage"),grid=$("grid");if(!stage||!grid)return;const available=Math.max(1,stage.parentElement.clientWidth-8),natural=Math.max(1,grid.scrollWidth);state.freeZoom=Math.max(.25,Math.min(1,Math.floor((available/natural)*100)/100));applyFreeZoom(); }
-      function renderGrid(){ const grid=$("grid"),stage=$("freeScoreStage");if(stage)stage.style.setProperty("--free-scale",String(state.freeZoom));grid.innerHTML="";const groups=new Map(state.freeGroups.map(group=>[group.start,group]));for(let i=0;i<state.freePattern.length;){const group=groups.get(i);if(group){const node=document.createElement("div");node.id=`free-group-${group.start}`;node.className=`free-tuplet ${state.freePattern[group.start]}`;node.title="Three equal notes in the time of two";const noteHits=Array.from({length:group.count},(_,offset)=>{const index=group.start+offset;return `<button class="tuplet-note-hit${state.slurAnchor===index?" slur-anchor":""}" id="tuplet-note-${index}" type="button" data-index="${index}" aria-label="Tuplet note ${offset+1} of ${group.count}"></button>`;}).join("");node.innerHTML=`<span class="tuplet-free-figure"><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-${group.symbol}"/></svg>${noteHits}</span>`;node.querySelectorAll(".tuplet-note-hit").forEach(hit=>{hit.onclick=event=>{event.stopPropagation();const index=Number(hit.dataset.index);if(selectSlurPoint(index))return;sound(getAudio().currentTime,state.freePattern[index]);};});node.onclick=()=>sound(getAudio().currentTime,state.freePattern[group.start]);grid.appendChild(node);i+=group.count;continue;}const index=i,type=state.freePattern[index],glyph=state.freeGlyphs[index],slot=document.createElement("div");slot.id=`slot-${index}`;slot.className=`slot score-slot ${type}${state.slurAnchor===index?" slur-anchor":""}`;slot.dataset.beat="";slot.dataset.tuplet="";slot.title="Select a different figure, then tap here to replace";slot.innerHTML=`<span class="note-glyph">${glyph}</span>`;slot.onclick=()=>{if(selectSlurPoint(index))return;if(state.selectedTuplet)return;saveCustomHistory();state.freePattern[index]=state.selectedRest?"rest":index===0?"accent":"normal";state.freeGlyphs[index]=state.selectedGlyph;state.freeDurations[index]=state.selectedUnits;renderGrid();sound(getAudio().currentTime,state.freePattern[index]);};grid.appendChild(slot);i++;}const add=document.createElement("div");add.id="slot-add";add.className="slot score-slot empty add-slot";add.title="Append the selected note or rest";add.innerHTML='<span class="note-glyph"></span>';add.onclick=()=>{saveCustomHistory();const start=state.freePattern.length;if(state.selectedTuplet){for(let i=0;i<3;i++){state.freePattern.push(start===0&&i===0?"accent":"normal");state.freeGlyphs.push(state.selectedGlyph);state.freeDurations.push(state.selectedUnits);}state.freeGroups.push({start,count:3,symbol:state.selectedTuplet});}else{state.freePattern.push(state.selectedRest?"rest":start===0?"accent":"normal");state.freeGlyphs.push(state.selectedGlyph);state.freeDurations.push(state.selectedUnits);}renderGrid();sound(getAudio().currentTime,state.freePattern.at(-1));};grid.appendChild(add);renderSlurs(grid);applyFreeZoom(); }
+      function renderGrid(){ const grid=$("grid"),stage=$("freeScoreStage");if(stage)stage.style.setProperty("--free-scale",String(state.freeZoom));grid.innerHTML="";const groups=new Map(state.freeGroups.map(group=>[group.start,group]));for(let i=0;i<state.freePattern.length;){const group=groups.get(i);if(group){const node=document.createElement("div");node.id=`free-group-${group.start}`;node.className=`free-tuplet ${state.freePattern[group.start]}`;node.title="Three equal notes in the time of two";const noteHits=Array.from({length:group.count},(_,offset)=>{const index=group.start+offset;return `<button class="tuplet-note-hit${state.slurAnchor===index?" slur-anchor":""}" id="tuplet-note-${index}" type="button" data-index="${index}" aria-label="Tuplet note ${offset+1} of ${group.count}"></button>`;}).join("");node.innerHTML=`<span class="tuplet-free-figure"><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-${group.symbol}"/></svg>${noteHits}</span>`;node.querySelectorAll(".tuplet-note-hit").forEach(hit=>{hit.onclick=event=>{event.stopPropagation();const index=Number(hit.dataset.index);if(selectSlurPoint(index))return;audition(state.freePattern[index]);};});node.onclick=()=>audition(state.freePattern[group.start]);grid.appendChild(node);i+=group.count;continue;}const index=i,type=state.freePattern[index],glyph=state.freeGlyphs[index],slot=document.createElement("div");slot.id=`slot-${index}`;slot.className=`slot score-slot ${type}${state.slurAnchor===index?" slur-anchor":""}`;slot.dataset.beat="";slot.dataset.tuplet="";slot.title="Select a different figure, then tap here to replace";slot.innerHTML=`<span class="note-glyph">${glyph}</span>`;slot.onclick=()=>{if(selectSlurPoint(index))return;if(state.selectedTuplet)return;saveCustomHistory();state.freePattern[index]=state.selectedRest?"rest":index===0?"accent":"normal";state.freeGlyphs[index]=state.selectedGlyph;state.freeDurations[index]=state.selectedUnits;renderGrid();audition(state.freePattern[index]);};grid.appendChild(slot);i++;}const add=document.createElement("div");add.id="slot-add";add.className="slot score-slot empty add-slot";add.title="Append the selected note or rest";add.innerHTML='<span class="note-glyph"></span>';add.onclick=()=>{saveCustomHistory();const start=state.freePattern.length;if(state.selectedTuplet){for(let i=0;i<3;i++){state.freePattern.push(start===0&&i===0?"accent":"normal");state.freeGlyphs.push(state.selectedGlyph);state.freeDurations.push(state.selectedUnits);}state.freeGroups.push({start,count:3,symbol:state.selectedTuplet});}else{state.freePattern.push(state.selectedRest?"rest":start===0?"accent":"normal");state.freeGlyphs.push(state.selectedGlyph);state.freeDurations.push(state.selectedUnits);}renderGrid();audition(state.freePattern.at(-1));};grid.appendChild(add);renderSlurs(grid);applyFreeZoom(); }
       function clearActive(){document.querySelectorAll(".slot,.rhythm-pad,.tuplet-note-hit,.free-slur").forEach(x=>x.classList.remove("playing"));}
       function highlight(i){clearActive();if(state.mode==="standard"){const slot=$(`standard-slot-${i}`);if(slot)slot.classList.add("playing");return;}const slur=slurStartingAt(i);if(slur){for(let index=slur.from;index<=slur.to;index++)freeNode(index)?.classList.add("playing");document.querySelector(`.free-slur[data-from="${slur.from}"][data-to="${slur.to}"]`)?.classList.add("playing");return;}freeNode(i)?.classList.add("playing");}
       function revealFreeRhythm(){ requestAnimationFrame(()=>$("freeStaff").scrollIntoView({behavior:"smooth",block:"center"})); }
@@ -451,15 +533,15 @@
       function resetApplication(){
         stop();
         state.bpm=60;state.beats=4;state.sub=1;state.standardUnits=1;state.standardCompatible=true;state.standardTuplet=false;state.standardCompound=false;
-        state.muted=false;state.selectedGlyph="𝅘𝅥";state.selectedRest=false;state.selectedTuplet="";state.selectedUnits=1;state.tone="wood";
+        state.muted=false;state.volume=1;state.selectedGlyph="𝅘𝅥";state.selectedRest=false;state.selectedTuplet="";state.selectedUnits=1;state.tone="wood";
         state.freePattern=[];state.freeGlyphs=[];state.freeDurations=[];state.freeGroups=[];state.freeSlurs=[];state.freeHistory=[];state.freeRedoHistory=[];state.slurMode=false;state.slurAnchor=null;state.freeZoom=1;
-        $("tempoRange").value="60";$("tempoPreset").value="60";$("signature").value="4/4";$("signature").disabled=false;
+        $("tempoRange").value="60";$("tempoPreset").value="60";$("signature").value="4/4";$("volumeRange").value="100";$("signature").disabled=false;
         document.querySelectorAll(".note-tile").forEach(tile=>tile.classList.toggle("active",tile.getAttribute("aria-label")==="Quarter note"));
         const expander=$("noteExpander"),picker=$("notePicker");expander.classList.remove("open");$("noteToggle").setAttribute("aria-expanded","false");picker.setAttribute("inert","");
         state.mode="standard";$("standardMode").classList.add("active");$("customMode").classList.remove("active");$("standardSystem").classList.add("active");$("customSystem").classList.remove("active");
-        setBpm(60);configureStandardRhythm(1);renderGrid();updateUndoButton();updateSlurTool();applyLanguage("zh");resetPlayback();
+        setBpm(60);setVolume(100);configureStandardRhythm(1);renderGrid();updateUndoButton();updateSlurTool();applyLanguage("zh");resetPlayback();
       }
-$("play").onclick=toggle;$("reset").onclick=resetApplication;$("tempoRange").oninput=e=>setBpm(e.target.value);$("tempoPreset").onchange=e=>setBpm(e.target.value);
+$("play").onclick=toggle;$("reset").onclick=resetApplication;$("tempoRange").oninput=e=>setBpm(e.target.value);$("tempoPreset").onchange=e=>setBpm(e.target.value);$("volumeRange").oninput=e=>setVolume(e.target.value);$("audioUnlock").onclick=enableSound;
       $("signature").onchange=()=>configureStandardRhythm(state.standardUnits);
       document.querySelectorAll(".note-tile").forEach(button=>{button.dataset.duration=selectedDuration(button);button.onclick=()=>{const name=button.getAttribute("aria-label").toLowerCase();state.selectedGlyph=button.dataset.glyph;state.selectedRest=button.dataset.rest==="true";state.selectedTuplet=name.includes("thirty-second-note triplet")?"32":name.includes("sixteenth-note triplet")?"sixteenth":name.includes("eighth-note triplet")?"eighth":"";state.standardTuplet=Boolean(state.selectedTuplet);state.selectedUnits=Number(button.dataset.duration);document.querySelectorAll(".note-tile").forEach(tile=>tile.classList.toggle("active",tile===button));updateNoteSummary(button);if(state.mode==="standard")configureStandardRhythm(state.selectedUnits);else renderGrid();};});
       $("noteToggle").onclick=()=>{const expander=$("noteExpander"),picker=$("notePicker"),open=!expander.classList.contains("open");expander.classList.toggle("open",open);$("noteToggle").setAttribute("aria-expanded",String(open));picker.toggleAttribute("inert",!open);};
@@ -467,8 +549,8 @@ $("play").onclick=toggle;$("reset").onclick=resetApplication;$("tempoRange").oni
       $("standardReset").onclick=resetStandardPattern;$("standardMute").onclick=()=>{state.standardPattern=Array(standardTotal()).fill("rest");renderStandardGrid();};
       $("customUndo").onclick=restoreCustomHistory;$("customRedo").onclick=restoreCustomRedo;$("customFit").onclick=fitFreeRhythm;$("customZoomOut").onclick=()=>changeFreeZoom(-.1);$("customZoomIn").onclick=()=>changeFreeZoom(.1);$("customClear").onclick=clearCustomPattern;$("customSlur").onclick=()=>{state.slurMode=!state.slurMode;state.slurAnchor=null;updateSlurTool();renderGrid();};
       $("langEn").onclick=()=>applyLanguage("en");$("langZh").onclick=()=>applyLanguage("zh");
-      window.onkeydown=e=>{if(e.code==="Space"&&!["INPUT","SELECT"].includes(e.target.tagName)){e.preventDefault();toggle();}};
-      setBpm(state.bpm);
+      document.addEventListener("pointerdown",()=>{unlockAudio();},{once:true,passive:true});document.addEventListener("touchstart",()=>{unlockAudio();},{once:true,passive:true});document.addEventListener("visibilitychange",updateAudioControl);window.onkeydown=e=>{if(e.code==="Space"&&!["INPUT","SELECT"].includes(e.target.tagName)){e.preventDefault();toggle();}};
+      setBpm(state.bpm);setVolume(100);updateAudioControl();
       resetAllPatterns();
       updateUndoButton();
       applyLanguage("zh");

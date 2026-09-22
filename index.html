@@ -106,7 +106,9 @@
     .pulse.primary, .pulse.normal, .pulse.sub { background: var(--green); transform: translateY(-4px) rotate(-3deg); box-shadow: 0 4px 0 var(--ink); }
     .pulse.sub { transform: translateY(-2px) scale(.9); }
 
-    .transport-bar { position: sticky; top: 8px; z-index: 40; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 88px; gap: 5px; padding: 5px; background: rgba(255,254,250,.96); backdrop-filter: blur(10px); }
+    .transport-bar { position: sticky; top: 8px; z-index: 40; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 98px 88px; gap: 5px; padding: 5px; background: rgba(255,254,250,.96); backdrop-filter: blur(10px); }
+    .transport-sound { min-width: 0; min-height: 38px; padding: 3px 4px; border: 2px solid var(--ink); border-radius: 7px; background: var(--paper); box-shadow: 0 2px 0 var(--ink); display: grid; grid-template-rows: 8px minmax(0, 1fr); gap: 2px; }
+    .transport-sound-label { display: block; overflow: hidden; color: var(--ink); font: .4rem/1 "Bungee", sans-serif; letter-spacing: .04em; text-align: center; white-space: nowrap; }
     .action-button {
       min-height: 38px; border: 2px solid var(--ink); border-radius: 7px; padding: 0 7px; color: var(--ink); font-family: "Bungee", sans-serif; font-size: .59rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 var(--ink); transition: transform .1s, box-shadow .1s;
     }
@@ -127,18 +129,16 @@
     #slower { left: 5px; top: calc(50% - 19px); }
     #faster { right: 5px; top: calc(50% - 19px); }
 
-    .control-side { border: 2px solid var(--ink); border-radius: 12px; padding: 9px 10px; display: grid; grid-template-columns: .85fr 1.4fr; grid-template-areas: "tempo preset" "metre note" "volume volume"; gap: 8px 9px; align-items: start; background: #fff; }
+    .control-side { border: 2px solid var(--ink); border-radius: 12px; padding: 9px 10px; display: grid; grid-template-columns: .85fr 1.4fr; grid-template-areas: "tempo preset" "metre note"; gap: 8px 9px; align-items: start; background: #fff; }
     .wide { grid-column: 1 / -1; }
     .tempo-control { grid-area: tempo; }
     .preset-control { grid-area: preset; }
     .metre-control { grid-area: metre; }
     .note-control { grid-area: note; }
-    .volume-control { grid-area: volume; }
     .control-side > .tempo-control,
     .control-side > .preset-control,
     .control-side > .metre-control,
-    .control-side > .note-control,
-    .control-side > .volume-control {
+    .control-side > .note-control {
       min-width: 0;
       min-height: 47px;
       padding: 5px 7px;
@@ -148,11 +148,8 @@
       box-shadow: 0 2px 0 rgba(32,32,32,.18);
     }
     .control-side > .note-control { padding: 3px 4px; }
-    .volume-control { padding: 5px 7px; }
-    .volume-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .volume-head .control-title { margin: 0; }
-    .sound-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: min(128px, 58%); }
-    .sound-option { min-height: 26px; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--paper); color: var(--ink); font: 700 .5rem "Space Mono", monospace; letter-spacing: .05em; }
+    .sound-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 100%; }
+    .sound-option { min-height: 20px; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--paper); color: var(--ink); font: 700 .42rem "Space Mono", monospace; letter-spacing: .03em; }
     .sound-option.active { background: var(--green); box-shadow: inset 0 0 0 1px var(--paper); }
     .sound-option:not(.active):hover { background: var(--yellow); }
     .control-title { font-family: "Bungee", sans-serif; font-size: .56rem; margin-bottom: 3px; }
@@ -281,7 +278,11 @@
       .brandbar { border-radius: 13px; }
       .deck { grid-template-columns: minmax(0, 1fr); gap: 9px; padding: 9px; }
       .control-side { grid-template-columns: 1fr; grid-template-areas: "tempo" "preset" "metre" "note" "volume"; gap: 7px; padding: 9px; }
-      .transport-bar { top: 6px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 78px; gap: 4px; padding: 4px; }
+      .transport-bar { top: 6px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 68px 78px; gap: 4px; padding: 4px; }
+      .transport-sound { min-height: 35px; padding: 3px; grid-template-rows: 7px minmax(0, 1fr); gap: 1px; }
+      .transport-sound-label { font-size: .34rem; }
+      .sound-switch { gap: 2px; }
+      .sound-option { min-height: 18px; padding: 0; font-size: .35rem; }
       .action-button { min-height: 35px; padding: 0 4px; font-size: .5rem; }
       .language-switch { padding: 2px; }
       .language-switch button { min-height: 29px; font-size: .46rem; }
@@ -317,6 +318,13 @@
     <section class="panel transport-bar" aria-label="Playback controls">
       <button class="action-button" id="play">PLAY</button>
       <button class="action-button" id="reset">RESET</button>
+      <div class="transport-sound" role="group" aria-label="Sound">
+        <span class="transport-sound-label" id="soundTitle">SOUND</span>
+        <div class="sound-switch" role="group" aria-label="Sound">
+          <button class="sound-option active" id="soundOn" type="button" aria-pressed="true">ON</button>
+          <button class="sound-option" id="soundOff" type="button" aria-pressed="false">OFF</button>
+        </div>
+      </div>
       <div class="language-switch" role="group" aria-label="Language">
         <button id="langEn" class="active" type="button" aria-pressed="true">EN</button>
         <button id="langZh" type="button" aria-pressed="false">中文</button>
@@ -329,15 +337,6 @@
         <div class="preset-control"><div class="control-title">TEMPO PRESET</div><select id="tempoPreset" aria-label="Tempo preset"><option value="15">LARGHISSIMO — under 20</option><option value="30">GRAVE — 20–40</option><option value="43">LENTO — 40–45</option><option value="48">LARGO — 45–50</option><option value="53">LARGHETTO — 50–55</option><option value="60" selected>ADAGIO — 55–65</option><option value="75">ANDANTE — 73–77</option><option value="81">ANDANTINO — 78–83</option><option value="92">MODERATO — 86–97</option><option value="104">ALLEGRETTO — 98–109</option><option value="120">ALLEGRO — 109–132</option><option value="136">VIVACE — 132–140</option><option value="172">PRESTO — 168–177</option><option value="180">PRESTISSIMO — 178+</option></select></div>
         <div class="metre-control"><div class="control-title">METRE</div><select id="signature" aria-label="Time signature"><option>2/2</option><option>2/4</option><option>3/4</option><option selected>4/4</option><option>5/4</option><option>6/8</option><option>7/8</option><option>9/8</option><option>12/8</option></select></div>
         <div class="note-expander note-control" id="noteExpander"><button class="note-expander-toggle" id="noteToggle" type="button" aria-expanded="false" aria-controls="notePicker" aria-label="Note value"><span class="note-expander-title" id="noteToggleTitle">NOTE</span><span class="note-summary" aria-hidden="true"><span class="note-summary-glyph" id="noteSummaryGlyph"></span></span><span class="note-toggle-icon" aria-hidden="true">+</span></button><div class="note-picker" id="notePicker" role="group" aria-label="Note value" inert><div class="note-family"><div class="note-family-title">STANDARD NOTES</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝄺" aria-label="Breve note"><span class="engraved-glyph ">𝄺</span><span class="note-caption">BREVE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅝" aria-label="Whole note"><span class="engraved-glyph ">𝅝</span><span class="note-caption">WHOLE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥" aria-label="Half note"><span class="engraved-glyph ">𝅗𝅥</span><span class="note-caption">HALF</span></button><button class="note-tile active" type="button" data-sub="1" data-glyph="𝅘𝅥" aria-label="Quarter note"><span class="engraved-glyph ">𝅘𝅥</span><span class="note-caption">¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮" aria-label="Eighth note"><span class="engraved-glyph ">𝅘𝅥𝅮</span><span class="note-caption">⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯" aria-label="Sixteenth note"><span class="engraved-glyph ">𝅘𝅥𝅯</span><span class="note-caption">1/16</span></button><button class="note-tile" type="button" data-sub="8" data-glyph="𝅘𝅥𝅰" aria-label="Thirty-second note"><span class="engraved-glyph ">𝅘𝅥𝅰</span><span class="note-caption">1/32</span></button><button class="note-tile" type="button" data-sub="16" data-glyph="𝅘𝅥𝅱" aria-label="Sixty-fourth note"><span class="engraved-glyph ">𝅘𝅥𝅱</span><span class="note-caption">1/64</span></button><button class="note-tile" type="button" data-sub="32" data-glyph="𝅘𝅥𝅲" aria-label="One hundred twenty-eighth note"><span class="engraved-glyph ">𝅘𝅥𝅲</span><span class="note-caption">1/128</span></button></div></div><div class="note-family"><div class="note-family-title">STANDARD RESTS</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝄺" data-rest="true" aria-label="Breve rest"><span class="engraved-glyph ">𝄺</span><span class="note-caption">BREVE R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄻" data-rest="true" aria-label="Whole rest"><span class="engraved-glyph ">𝄻</span><span class="note-caption">WHOLE R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄼" data-rest="true" aria-label="Half rest"><span class="engraved-glyph ">𝄼</span><span class="note-caption">HALF R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄽" data-rest="true" aria-label="Quarter rest"><span class="engraved-glyph ">𝄽</span><span class="note-caption">¼ REST</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝄾" data-rest="true" aria-label="Eighth rest"><span class="engraved-glyph ">𝄾</span><span class="note-caption">⅛ REST</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝄿" data-rest="true" aria-label="Sixteenth rest"><span class="engraved-glyph ">𝄿</span><span class="note-caption">R16</span></button><button class="note-tile" type="button" data-sub="8" data-glyph="𝅀" data-rest="true" aria-label="Thirty-second rest"><span class="engraved-glyph ">𝅀</span><span class="note-caption">R32</span></button><button class="note-tile" type="button" data-sub="16" data-glyph="𝅁" data-rest="true" aria-label="Sixty-fourth rest"><span class="engraved-glyph ">𝅁</span><span class="note-caption">R64</span></button></div></div><div class="note-family"><div class="note-family-title">DOTTED NOTES</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝅝·" aria-label="Dotted whole note"><span class="engraved-glyph dotted">𝅝</span><span class="note-caption">D WHOLE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥·" aria-label="Dotted half note"><span class="engraved-glyph dotted">𝅗𝅥</span><span class="note-caption">D HALF</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅘𝅥·" aria-label="Dotted quarter note"><span class="engraved-glyph dotted">𝅘𝅥</span><span class="note-caption">D ¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮·" aria-label="Dotted eighth note"><span class="engraved-glyph dotted">𝅘𝅥𝅮</span><span class="note-caption">D ⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯·" aria-label="Dotted sixteenth note"><span class="engraved-glyph dotted">𝅘𝅥𝅯</span><span class="note-caption">D 1/16</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥··" aria-label="Double-dotted half note"><span class="engraved-glyph double-dotted">𝅗𝅥</span><span class="note-caption">DD HALF</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅘𝅥··" aria-label="Double-dotted quarter note"><span class="engraved-glyph double-dotted">𝅘𝅥</span><span class="note-caption">DD ¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮··" aria-label="Double-dotted eighth note"><span class="engraved-glyph double-dotted">𝅘𝅥𝅮</span><span class="note-caption">DD ⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯··" aria-label="Double-dotted sixteenth note"><span class="engraved-glyph double-dotted">𝅘𝅥𝅯</span><span class="note-caption">DD 1/16</span></button></div></div><div class="note-family"><div class="note-family-title">TUPLETS · 3 IN THE TIME OF 2</div><div class="note-grid"><button class="note-tile" type="button" data-sub="3" data-glyph="𝅘𝅥𝅮" aria-label="Eighth-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-eighth"/></svg></span><span class="note-caption">⅛ 3:2</span></button><button class="note-tile" type="button" data-sub="6" data-glyph="𝅘𝅥𝅯" aria-label="Sixteenth-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-sixteenth"/></svg></span><span class="note-caption">1/16 3:2</span></button><button class="note-tile" type="button" data-sub="12" data-glyph="𝅘𝅥𝅰" aria-label="Thirty-second-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-32"/></svg></span><span class="note-caption">1/32 3:2</span></button></div></div></div></div>
-        <div class="volume-control" aria-label="Sound">
-          <div class="volume-head">
-            <div class="control-title" id="soundTitle">SOUND</div>
-            <div class="sound-switch" role="group" aria-label="Sound">
-              <button class="sound-option active" id="soundOn" type="button" aria-pressed="true">ON</button>
-              <button class="sound-option" id="soundOff" type="button" aria-pressed="false">OFF</button>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 

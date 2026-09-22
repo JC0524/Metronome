@@ -392,10 +392,15 @@
           (navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
       }
       function silentAudioDataUrl(sampleRate){
-        const bytes=new ArrayBuffer(10),view=new DataView(bytes);
-        view.setUint32(0,sampleRate,true);view.setUint32(4,sampleRate,true);view.setUint16(8,1,true);
-        const header=btoa(String.fromCharCode(...new Uint8Array(bytes))).slice(0,13);
-        return `data:audio/wav;base64,UklGRisAAABXQVZFZm10IBAAAAABAAEA${header}AgAZGF0YQcAAACAgICAgICAAAA=`;
+        const rate=sampleRate||44100,frames=Math.max(1,Math.floor(rate*.25)),dataSize=frames*2,buffer=new ArrayBuffer(44+dataSize),view=new DataView(buffer);
+        const writeStr=(offset,str)=>{for(let i=0;i<str.length;i++)view.setUint8(offset+i,str.charCodeAt(i));};
+        writeStr(0,"RIFF");view.setUint32(4,36+dataSize,true);writeStr(8,"WAVE");writeStr(12,"fmt ");
+        view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);
+        view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);
+        writeStr(36,"data");view.setUint32(40,dataSize,true);
+        const bytes=new Uint8Array(buffer);let binary="";const chunk=0x8000;
+        for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));
+        return "data:audio/wav;base64,"+btoa(binary);
       }
       function activateSafariFallback(ac){
         configureSafariPlaybackSession();
@@ -439,20 +444,18 @@
         source.start();
       }
       function unlockAudio(){
-        if(audioUnlockPromise)return audioUnlockPromise;
         configureSafariPlaybackSession();
         const ac=getAudio();
         if(!ac)return Promise.resolve(null);
         activateSafariFallback(ac);
-        // The first source starts inside a touch/click handler, which is required by iOS Safari.
         primeAudio(ac);
-        audioUnlockPromise=(async()=>{
-          try{ if(ac.state!=="running")await ac.resume(); }catch(_error){}
+        // resume() must run in this user-gesture call stack (not inside async).
+        const resume=ac.state==="running"?Promise.resolve():ac.resume();
+        audioUnlockPromise=resume.then(()=>{
           state.audioUnlocked=ac.state==="running";
           updateAudioControl();
-          audioUnlockPromise=null;
           return state.audioUnlocked?ac:null;
-        })();
+        }).catch(()=>null);
         return audioUnlockPromise;
       }
       async function enableSound(){
@@ -582,7 +585,17 @@ $("play").onclick=toggle;$("reset").onclick=resetApplication;$("tempoRange").oni
       $("standardReset").onclick=resetStandardPattern;$("standardMute").onclick=()=>{state.standardPattern=Array(standardTotal()).fill("rest");renderStandardGrid();};
       $("customUndo").onclick=restoreCustomHistory;$("customRedo").onclick=restoreCustomRedo;$("customFit").onclick=fitFreeRhythm;$("customZoomOut").onclick=()=>changeFreeZoom(-.1);$("customZoomIn").onclick=()=>changeFreeZoom(.1);$("customClear").onclick=clearCustomPattern;$("customSlur").onclick=()=>{state.slurMode=!state.slurMode;state.slurAnchor=null;updateSlurTool();renderGrid();};
       $("langEn").onclick=()=>applyLanguage("en");$("langZh").onclick=()=>applyLanguage("zh");
-      document.addEventListener("pointerdown",()=>{unlockAudio();},{once:true,passive:true});document.addEventListener("touchstart",()=>{unlockAudio();},{once:true,passive:true});document.addEventListener("visibilitychange",updateAudioControl);window.onkeydown=e=>{if(e.code==="Space"&&!["INPUT","SELECT"].includes(e.target.tagName)){e.preventDefault();toggle();}};
+      document.addEventListener("pointerdown",()=>{unlockAudio();},{passive:true});
+      document.addEventListener("touchstart",()=>{unlockAudio();},{passive:true});
+      document.addEventListener("visibilitychange",()=>{
+        if(document.visibilityState==="visible"&&ctx){
+          ctx.resume().catch(()=>{});
+          activateSafariFallback(ctx);
+        }
+        updateAudioControl();
+      });
+      window.addEventListener("pageshow",()=>{if(ctx)ctx.resume().catch(()=>{});});
+      window.onkeydown=e=>{if(e.code==="Space"&&!["INPUT","SELECT"].includes(e.target.tagName)){e.preventDefault();toggle();}};
       setBpm(state.bpm);setSoundEnabled(true);
       resetAllPatterns();
       updateUndoButton();

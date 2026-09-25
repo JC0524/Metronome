@@ -365,7 +365,7 @@
     (() => {
       "use strict";
       const state = { playing:false, starting:false, muted:false, audioUnlocked:false, bpm:60, beats:4, sub:1, standardUnits:1, standardCompatible:true, standardTuplet:false, standardCompound:false, mode:"standard", standardPattern:[], freePattern:[], freeGlyphs:[], freeDurations:[], freeGroups:[], freeSlurs:[], freeHistory:[], freeRedoHistory:[], slurMode:false, slurAnchor:null, freeZoom:1, selectedGlyph:"𝅘𝅥", selectedRest:false, selectedTuplet:"", selectedUnits:1, tone:"wood" };
-            let ctx, timer, nextTime=0, step=0, freeClickBuffer=null, freeClickLimiter=null, masterGain=null, audioUnlockPromise=null, iosSilentAudio=null;
+            let ctx, timer, nextTime=0, step=0, freeClickBuffer=null, freeClickLimiter=null, standardClickCompressor=null, standardClickMakeup=null, standardClickClipper=null, masterGain=null, audioUnlockPromise=null, iosSilentAudio=null;
       const $ = id => document.getElementById(id);
       const labels={en:{play:"PLAY",stop:"STOP",restart:"RESTART",volume:"VOLUME",sound:"SOUND",soundOn:"ON",soundOff:"OFF",soundBlocked:"TAP SOUND",tempo:"TEMPO",preset:"TEMPO PRESET",metre:"METRE",noteValue:"NOTE",standard:"STANDARD RHYTHM",custom:"CUSTOM BAR",free:"FREE RHYTHM",reset:"RESET",mute:"MUTE",clear:"CLEAR",undo:"UNDO",redo:"REDO",fit:"FIT",standardFoot:"",standardInvalid:"USE CUSTOM BAR",freeFoot:"SLUR = ONE PULSE • TAP A CURVE TO REMOVE • NO METRE",families:["STANDARD NOTES","STANDARD RESTS","DOTTED NOTES","TUPLETS · 3 IN THE TIME OF 2"],credit:"Developed by Joe Chan"},zh:{play:"播放",stop:"停止",restart:"重播",volume:"音量",sound:"聲音",soundOn:"開",soundOff:"關",soundBlocked:"點按聲音",tempo:"速度",preset:"速度預設",metre:"拍號",noteValue:"音符",standard:"標準節奏",custom:"自訂節奏",free:"自由節奏",reset:"重設",mute:"靜音",clear:"清除",undo:"復原",redo:"重做",fit:"全覽",standardFoot:"",standardInvalid:"請使用自訂節奏",freeFoot:"連結 = 一個拍點 • 點按弧線可移除 • 無拍號",families:["標準音符","標準休止符","附點音符","三連音 · 三個音佔兩個音的時值"],credit:"由 Joe Chan 開發"}};
       const captionZh={"BREVE":"二全音符","WHOLE":"全音符","HALF":"二分","¼":"四分","⅛":"八分","1/16":"十六分","1/32":"三十二分","1/64":"六十四分","1/128":"一百二十八分","BREVE R":"二全休","WHOLE R":"全休","HALF R":"二分休","¼ REST":"四分休","⅛ REST":"八分休","R16":"十六分休","R32":"三十二分休","R64":"六十四分休","D WHOLE":"附點全","D HALF":"附點二分","D ¼":"附點四分","D ⅛":"附點八分","D 1/16":"附點十六分","DD HALF":"雙附點二分","DD ¼":"雙附點四分","DD ⅛":"雙附點八分","DD 1/16":"雙附點十六分"};
@@ -503,19 +503,45 @@
         source.connect(gain).connect(freeClickLimiter);
         source.start(time);
       }
+      function standardClickBus(ac){
+        // Standard Rhythm is deliberately driven close to the safe device ceiling.
+        // Compression, make-up gain, and soft clipping deliver a substantially louder,
+        // brighter click without uncontrolled clipping when rapid subdivisions overlap.
+        if(!standardClickCompressor){
+          standardClickCompressor=ac.createDynamicsCompressor();
+          standardClickCompressor.threshold.setValueAtTime(-6,ac.currentTime);
+          standardClickCompressor.knee.setValueAtTime(0,ac.currentTime);
+          standardClickCompressor.ratio.setValueAtTime(12,ac.currentTime);
+          standardClickCompressor.attack.setValueAtTime(.0005,ac.currentTime);
+          standardClickCompressor.release.setValueAtTime(.085,ac.currentTime);
+          standardClickMakeup=ac.createGain();
+          standardClickMakeup.gain.setValueAtTime(2.1,ac.currentTime);
+          standardClickClipper=ac.createWaveShaper();
+          const curve=new Float32Array(2049),drive=2.7,normalizer=Math.tanh(drive);
+          for(let i=0;i<curve.length;i++){const x=(i/(curve.length-1))*2-1;curve[i]=Math.tanh(drive*x)/normalizer;}
+          standardClickClipper.curve=curve;
+          standardClickClipper.oversample="4x";
+          standardClickCompressor.connect(standardClickMakeup).connect(standardClickClipper).connect(audioBus(ac));
+        }
+        return standardClickCompressor;
+      }
       function sound(time,kind){
         if(state.muted||kind==="rest")return;
         const ac=getAudio();
         if(!ac||ac.state!=="running")return;
         if(state.mode==="custom"){fixedFreeClick(ac,time);return;}
         const osc=ac.createOscillator(),gain=ac.createGain();
-        let f=kind==="accent"?1450:kind==="normal"?970:620,v=kind==="accent"?1:kind==="normal"?.65:.26,d=.052;
-        if(state.tone==="beep"){osc.type="sine";f=kind==="accent"?1600:kind==="normal"?1050:650;}
-        else if(state.tone==="clock"){osc.type="triangle";f=kind==="accent"?1150:kind==="normal"?780:460;d=.026;}
-        else osc.type="sine";
-        osc.frequency.setValueAtTime(f,time);osc.frequency.exponentialRampToValueAtTime(Math.max(90,f*.34),time+d);
+        const slot=Math.max(.003,(60/state.bpm)*state.standardUnits*.55);
+        let f=kind==="accent"?1850:kind==="normal"?1320:900,v=kind==="accent"?1.2:kind==="normal"?.95:.48,d=Math.min(.078,slot);
+        if(state.tone==="beep"){osc.type="square";f=kind==="accent"?2000:kind==="normal"?1450:950;}
+        else if(state.tone==="clock"){osc.type="triangle";f=kind==="accent"?1400:kind==="normal"?980:620;d=Math.min(.04,slot);}
+        else osc.type="square";
+        osc.frequency.setValueAtTime(f,time);osc.frequency.exponentialRampToValueAtTime(Math.max(140,f*.42),time+d);
         gain.gain.setValueAtTime(v,time);gain.gain.exponentialRampToValueAtTime(.001,time+d);
-        osc.connect(gain).connect(audioBus(ac));osc.start(time);osc.stop(time+d);
+        // Keep inner subdivisions audible but lower than the primary beat. Accent and
+        // regular Standard Rhythm beats use the boosted, safely limited output bus.
+        osc.connect(gain).connect(kind==="ghost"?audioBus(ac):standardClickBus(ac));
+        osc.start(time);osc.stop(time+d);
       }
       function slurStartingAt(index){ return state.mode==="custom"?state.freeSlurs.find(slur=>slur.from===index):null; }
       function customPulseUnits(index){ const slur=slurStartingAt(index);if(!slur)return state.freeDurations[index]||1;let units=0;for(let i=slur.from;i<=slur.to;i++)units+=state.freeDurations[i]||1;return units; }

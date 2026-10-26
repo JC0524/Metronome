@@ -106,16 +106,17 @@
     .pulse.primary, .pulse.normal, .pulse.sub { background: var(--green); transform: translateY(-4px) rotate(-3deg); box-shadow: 0 4px 0 var(--ink); }
     .pulse.sub { transform: translateY(-2px) scale(.9); }
 
-    .transport-bar { position: sticky; top: 8px; z-index: 40; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 98px 88px; gap: 5px; padding: 5px; background: rgba(255,254,250,.96); backdrop-filter: blur(10px); }
-    .transport-sound { min-width: 0; min-height: 38px; padding: 3px 4px; border: 2px solid var(--ink); border-radius: 7px; background: var(--paper); box-shadow: 0 2px 0 var(--ink); display: grid; grid-template-rows: 8px minmax(0, 1fr); gap: 2px; }
-    .transport-sound-label { display: block; overflow: hidden; color: var(--ink); font: .4rem/1 "Bungee", sans-serif; letter-spacing: .04em; text-align: center; white-space: nowrap; }
-    .action-button {
-      min-height: 38px; border: 2px solid var(--ink); border-radius: 7px; padding: 0 7px; color: var(--ink); font-family: "Bungee", sans-serif; font-size: .59rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 var(--ink); transition: transform .1s, box-shadow .1s;
+    .transport-bar { position: sticky; top: 8px; z-index: 40; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 8px; background: rgba(255,254,250,.96); backdrop-filter: blur(10px); }
+    .action-button, .language-toggle {
+      min-height: 48px; border: 2px solid var(--ink); border-radius: 8px; padding: 0 10px; color: var(--ink); font-family: "Bungee", sans-serif; font-size: .64rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 var(--ink); transition: transform .1s, box-shadow .1s; touch-action: manipulation;
     }
-    .action-button:active { transform: translateY(2px); box-shadow: none; }
+    .action-button:active, .language-toggle:active { transform: translateY(2px); box-shadow: none; }
     #play { background: var(--green); }
     #play.running { background: var(--coral); }
     #reset { background: var(--purple); }
+    .sound-toggle { background: var(--yellow); }
+    .sound-toggle.muted { background: #e8e8e8; color: #666; }
+    .language-toggle { background: var(--orange); }
 
     .deck { padding: 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: start; scroll-margin-top: 72px; }
     .dial-area { width: min(200px, 100%); min-height: 0; border: 2px solid var(--ink); border-radius: 50%; aspect-ratio: 1; display: grid; place-items: center; position: relative; background: var(--purple); box-shadow: inset 0 0 0 10px #e6daf4, inset 0 0 0 12px var(--ink); }
@@ -158,7 +159,11 @@
     }
     select:hover { background: var(--yellow); }
     select:focus-visible { outline: 2px solid var(--purple); outline-offset: 1px; }
-    input[type=range] { width: 100%; height: 14px; margin: 0; accent-color: var(--coral); cursor: pointer; }
+    .tempo-input-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .tempo-input { width: 100%; min-width: 0; min-height: 30px; box-sizing: border-box; padding: 4px 6px; border: 2px solid var(--ink); border-radius: 5px; background: var(--paper); color: var(--ink); font: 700 .76rem "Space Mono", monospace; text-align: center; }
+    .tempo-input:focus-visible { outline: 3px solid var(--coral); outline-offset: 2px; }
+    .tempo-unit { flex: 0 0 auto; font: 700 .62rem "Space Mono", monospace; }
+    .tempo-input::-webkit-inner-spin-button, .tempo-input::-webkit-outer-spin-button { margin: 0; }
     .note-expander { align-self: start; min-width: 0; }
     .note-expander-toggle { width: 100%; min-height: 35px; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 6px; padding: 4px 5px; border: 0; border-radius: 5px; background: transparent; color: var(--ink); cursor: pointer; text-align: left; box-shadow: none; }
     .note-expander-toggle:hover { background: var(--yellow); }
@@ -269,23 +274,13 @@
     .bar-foot { margin-top: 10px; font-size: .57rem; font-weight: 700; color: #666; text-align: center; }
     .bar-foot:empty { display: none; }
     .credit { position: fixed; right: 10px; bottom: 8px; z-index: 30; padding: 0; border: 0; background: transparent; color: rgba(32,32,32,.72); font: 700 .47rem "Space Mono", monospace; letter-spacing: .02em; line-height: 1; pointer-events: none; }
-    .language-switch { align-self: stretch; display: flex; align-items: center; gap: 3px; min-width: 0; padding: 3px; border: 2px solid var(--ink); border-radius: 7px; background: var(--paper); box-shadow: 0 2px 0 var(--ink); font: 700 .5rem "Space Mono", monospace; }
-    .language-switch button { flex: 1 1 0; min-width: 0; min-height: 28px; border: 0; border-radius: 4px; padding: 3px 2px; background: transparent; color: var(--ink); font: inherit; }
-    .language-switch button.active { background: var(--orange); }
-
     @media (max-width: 590px) {
       body { padding: 10px 8px 24px; }
       .brandbar { border-radius: 13px; }
       .deck { grid-template-columns: minmax(0, 1fr); gap: 9px; padding: 9px; }
       .control-side { grid-template-columns: 1fr; grid-template-areas: "tempo" "preset" "metre" "note" "volume"; gap: 7px; padding: 9px; }
-      .transport-bar { top: 6px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 68px 78px; gap: 4px; padding: 4px; }
-      .transport-sound { min-height: 35px; padding: 3px; grid-template-rows: 7px minmax(0, 1fr); gap: 1px; }
-      .transport-sound-label { font-size: .34rem; }
-      .sound-switch { gap: 2px; }
-      .sound-option { min-height: 18px; padding: 0; font-size: .35rem; }
-      .action-button { min-height: 35px; padding: 0 4px; font-size: .5rem; }
-      .language-switch { padding: 2px; }
-      .language-switch button { min-height: 29px; font-size: .46rem; }
+      .transport-bar { top: 6px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 6px; }
+      .action-button, .language-toggle { min-height: 52px; padding: 0 8px; font-size: .6rem; }
     }
   </style>
 </head>
@@ -316,24 +311,15 @@
   </svg>
   <main class="app">
     <section class="panel transport-bar" aria-label="Playback controls">
-      <button class="action-button" id="play">PLAY</button>
-      <button class="action-button" id="reset">RESET</button>
-      <div class="transport-sound" role="group" aria-label="Sound">
-        <span class="transport-sound-label" id="soundTitle">SOUND</span>
-        <div class="sound-switch" role="group" aria-label="Sound">
-          <button class="sound-option active" id="soundOn" type="button" aria-pressed="true">ON</button>
-          <button class="sound-option" id="soundOff" type="button" aria-pressed="false">OFF</button>
-        </div>
-      </div>
-      <div class="language-switch" role="group" aria-label="Language">
-        <button id="langEn" class="active" type="button" aria-pressed="true">EN</button>
-        <button id="langZh" type="button" aria-pressed="false">中文</button>
-      </div>
+      <button class="action-button" id="play" type="button">PLAY</button>
+      <button class="action-button" id="reset" type="button">RESET</button>
+      <button class="action-button sound-toggle" id="soundToggle" type="button" aria-pressed="true">SOUND: ON</button>
+      <button class="language-toggle" id="languageToggle" type="button" aria-label="Switch to Chinese">中文</button>
     </section>
 
     <section class="panel deck" id="settingsPanel" aria-label="Tempo and timing controls">
       <div class="control-side">
-        <div class="tempo-control"><div class="control-title">TEMPO • <span id="bpm">60</span> BPM</div><input id="tempoRange" type="range" min="10" max="280" value="60" aria-label="Tempo in BPM"></div>
+        <div class="tempo-control"><label class="control-title" for="tempoInput">TEMPO</label><div class="tempo-input-row"><input class="tempo-input" id="tempoInput" type="number" min="10" max="280" step="1" value="60" inputmode="numeric" aria-label="Tempo in BPM"><span class="tempo-unit" aria-hidden="true">BPM</span></div></div>
         <div class="preset-control"><div class="control-title">TEMPO PRESET</div><select id="tempoPreset" aria-label="Tempo preset"><option value="15">LARGHISSIMO — under 20</option><option value="30">GRAVE — 20–40</option><option value="43">LENTO — 40–45</option><option value="48">LARGO — 45–50</option><option value="53">LARGHETTO — 50–55</option><option value="60" selected>ADAGIO — 55–65</option><option value="75">ANDANTE — 73–77</option><option value="81">ANDANTINO — 78–83</option><option value="92">MODERATO — 86–97</option><option value="104">ALLEGRETTO — 98–109</option><option value="120">ALLEGRO — 109–132</option><option value="136">VIVACE — 132–140</option><option value="172">PRESTO — 168–177</option><option value="180">PRESTISSIMO — 178+</option></select></div>
         <div class="metre-control"><div class="control-title">METRE</div><select id="signature" aria-label="Time signature"><option>2/2</option><option>2/4</option><option>3/4</option><option selected>4/4</option><option>5/4</option><option>6/8</option><option>7/8</option><option>9/8</option><option>12/8</option></select></div>
         <div class="note-expander note-control" id="noteExpander"><button class="note-expander-toggle" id="noteToggle" type="button" aria-expanded="false" aria-controls="notePicker" aria-label="Note value"><span class="note-expander-title" id="noteToggleTitle">NOTE</span><span class="note-summary" aria-hidden="true"><span class="note-summary-glyph" id="noteSummaryGlyph"></span></span><span class="note-toggle-icon" aria-hidden="true">+</span></button><div class="note-picker" id="notePicker" role="group" aria-label="Note value" inert><div class="note-family"><div class="note-family-title">STANDARD NOTES</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝄺" aria-label="Breve note"><span class="engraved-glyph ">𝄺</span><span class="note-caption">BREVE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅝" aria-label="Whole note"><span class="engraved-glyph ">𝅝</span><span class="note-caption">WHOLE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥" aria-label="Half note"><span class="engraved-glyph ">𝅗𝅥</span><span class="note-caption">HALF</span></button><button class="note-tile active" type="button" data-sub="1" data-glyph="𝅘𝅥" aria-label="Quarter note"><span class="engraved-glyph ">𝅘𝅥</span><span class="note-caption">¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮" aria-label="Eighth note"><span class="engraved-glyph ">𝅘𝅥𝅮</span><span class="note-caption">⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯" aria-label="Sixteenth note"><span class="engraved-glyph ">𝅘𝅥𝅯</span><span class="note-caption">1/16</span></button><button class="note-tile" type="button" data-sub="8" data-glyph="𝅘𝅥𝅰" aria-label="Thirty-second note"><span class="engraved-glyph ">𝅘𝅥𝅰</span><span class="note-caption">1/32</span></button><button class="note-tile" type="button" data-sub="16" data-glyph="𝅘𝅥𝅱" aria-label="Sixty-fourth note"><span class="engraved-glyph ">𝅘𝅥𝅱</span><span class="note-caption">1/64</span></button><button class="note-tile" type="button" data-sub="32" data-glyph="𝅘𝅥𝅲" aria-label="One hundred twenty-eighth note"><span class="engraved-glyph ">𝅘𝅥𝅲</span><span class="note-caption">1/128</span></button></div></div><div class="note-family"><div class="note-family-title">STANDARD RESTS</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝄺" data-rest="true" aria-label="Breve rest"><span class="engraved-glyph ">𝄺</span><span class="note-caption">BREVE R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄻" data-rest="true" aria-label="Whole rest"><span class="engraved-glyph ">𝄻</span><span class="note-caption">WHOLE R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄼" data-rest="true" aria-label="Half rest"><span class="engraved-glyph ">𝄼</span><span class="note-caption">HALF R</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝄽" data-rest="true" aria-label="Quarter rest"><span class="engraved-glyph ">𝄽</span><span class="note-caption">¼ REST</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝄾" data-rest="true" aria-label="Eighth rest"><span class="engraved-glyph ">𝄾</span><span class="note-caption">⅛ REST</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝄿" data-rest="true" aria-label="Sixteenth rest"><span class="engraved-glyph ">𝄿</span><span class="note-caption">R16</span></button><button class="note-tile" type="button" data-sub="8" data-glyph="𝅀" data-rest="true" aria-label="Thirty-second rest"><span class="engraved-glyph ">𝅀</span><span class="note-caption">R32</span></button><button class="note-tile" type="button" data-sub="16" data-glyph="𝅁" data-rest="true" aria-label="Sixty-fourth rest"><span class="engraved-glyph ">𝅁</span><span class="note-caption">R64</span></button></div></div><div class="note-family"><div class="note-family-title">DOTTED NOTES</div><div class="note-grid"><button class="note-tile" type="button" data-sub="1" data-glyph="𝅝·" aria-label="Dotted whole note"><span class="engraved-glyph dotted">𝅝</span><span class="note-caption">D WHOLE</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥·" aria-label="Dotted half note"><span class="engraved-glyph dotted">𝅗𝅥</span><span class="note-caption">D HALF</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅘𝅥·" aria-label="Dotted quarter note"><span class="engraved-glyph dotted">𝅘𝅥</span><span class="note-caption">D ¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮·" aria-label="Dotted eighth note"><span class="engraved-glyph dotted">𝅘𝅥𝅮</span><span class="note-caption">D ⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯·" aria-label="Dotted sixteenth note"><span class="engraved-glyph dotted">𝅘𝅥𝅯</span><span class="note-caption">D 1/16</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅗𝅥··" aria-label="Double-dotted half note"><span class="engraved-glyph double-dotted">𝅗𝅥</span><span class="note-caption">DD HALF</span></button><button class="note-tile" type="button" data-sub="1" data-glyph="𝅘𝅥··" aria-label="Double-dotted quarter note"><span class="engraved-glyph double-dotted">𝅘𝅥</span><span class="note-caption">DD ¼</span></button><button class="note-tile" type="button" data-sub="2" data-glyph="𝅘𝅥𝅮··" aria-label="Double-dotted eighth note"><span class="engraved-glyph double-dotted">𝅘𝅥𝅮</span><span class="note-caption">DD ⅛</span></button><button class="note-tile" type="button" data-sub="4" data-glyph="𝅘𝅥𝅯··" aria-label="Double-dotted sixteenth note"><span class="engraved-glyph double-dotted">𝅘𝅥𝅯</span><span class="note-caption">DD 1/16</span></button></div></div><div class="note-family"><div class="note-family-title">TUPLETS · 3 IN THE TIME OF 2</div><div class="note-grid"><button class="note-tile" type="button" data-sub="3" data-glyph="𝅘𝅥𝅮" aria-label="Eighth-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-eighth"/></svg></span><span class="note-caption">⅛ 3:2</span></button><button class="note-tile" type="button" data-sub="6" data-glyph="𝅘𝅥𝅯" aria-label="Sixteenth-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-sixteenth"/></svg></span><span class="note-caption">1/16 3:2</span></button><button class="note-tile" type="button" data-sub="12" data-glyph="𝅘𝅥𝅰" aria-label="Thirty-second-note triplet; three equal notes in the time of two"><span class="tuplet-symbol"><span>3</span><svg viewBox="0 0 48 36" aria-hidden="true"><use href="#tuplet-32"/></svg></span><span class="note-caption">1/32 3:2</span></button></div></div></div></div>
@@ -342,17 +328,17 @@
 
     <section class="panel bar-panel" aria-label="Rhythm systems">
       <div class="mode-switch" aria-label="Rhythm system">
-        <button class="mode-button active" id="standardMode" type="button">STANDARD RHYTHM</button>
-        <button class="mode-button" id="customMode" type="button">CUSTOM BAR</button>
+        <button class="mode-button" id="standardMode" type="button">STANDARD RHYTHM</button>
+        <button class="mode-button active" id="customMode" type="button">CUSTOM BAR</button>
       </div>
 
-      <div class="rhythm-system active" id="standardSystem">
+      <div class="rhythm-system" id="standardSystem">
         <div class="bar-header"><h2>STANDARD RHYTHM</h2><div class="presets"><button class="preset" id="standardReset">RESET</button><button class="preset" id="standardMute">MUTE</button></div></div>
         <div class="grid-scroll"><div class="standard-grid" id="standardGrid"></div></div>
         <div class="bar-foot"></div>
       </div>
 
-      <div class="rhythm-system" id="customSystem">
+      <div class="rhythm-system active" id="customSystem">
         <div class="bar-header"><h2>FREE RHYTHM</h2><div class="presets"><button class="preset" id="customUndo" type="button" disabled>UNDO</button><button class="preset" id="customRedo" type="button" disabled>REDO</button><button class="preset zoom-control" id="customFit" type="button" title="Fit rhythm to screen" aria-label="Fit rhythm to screen">FIT</button><button class="preset zoom-control" id="customZoomOut" type="button" title="Zoom out rhythm" aria-label="Zoom out rhythm">−</button><button class="preset zoom-control" id="customZoomIn" type="button" title="Zoom in rhythm" aria-label="Zoom in rhythm">+</button><button class="preset" id="customSlur" type="button">SLUR</button><button class="preset" id="customClear" type="button">CLEAR</button></div></div>
         <div class="grid-scroll" id="freeStaff"><div class="free-score-stage" id="freeScoreStage"><div class="grid" id="grid"></div></div></div>
         <div class="bar-foot">SELECT A FIGURE → TAP THE END OF THE LINE → REPEAT • NO METRE</div>
@@ -364,14 +350,14 @@
   <script>
     (() => {
       "use strict";
-      const state = { playing:false, starting:false, muted:false, audioUnlocked:false, bpm:60, beats:4, sub:1, standardUnits:1, standardCompatible:true, standardTuplet:false, standardCompound:false, mode:"standard", standardPattern:[], freePattern:[], freeGlyphs:[], freeDurations:[], freeGroups:[], freeSlurs:[], freeHistory:[], freeRedoHistory:[], slurMode:false, slurAnchor:null, freeZoom:1, selectedGlyph:"𝅘𝅥", selectedRest:false, selectedTuplet:"", selectedUnits:1, tone:"wood" };
+      const state = { playing:false, starting:false, muted:false, audioUnlocked:false, bpm:60, beats:4, sub:1, standardUnits:1, standardCompatible:true, standardTuplet:false, standardCompound:false, mode:"custom", standardPattern:[], freePattern:[], freeGlyphs:[], freeDurations:[], freeGroups:[], freeSlurs:[], freeHistory:[], freeRedoHistory:[], slurMode:false, slurAnchor:null, freeZoom:1, selectedGlyph:"𝅘𝅥", selectedRest:false, selectedTuplet:"", selectedUnits:1, tone:"wood" };
             let ctx, timer, nextTime=0, step=0, freeClickBuffer=null, freeClickLimiter=null, standardClickCompressor=null, standardClickMakeup=null, standardClickClipper=null, masterGain=null, audioUnlockPromise=null, iosSilentAudio=null;
       const $ = id => document.getElementById(id);
       const labels={en:{play:"PLAY",stop:"STOP",restart:"RESTART",volume:"VOLUME",sound:"SOUND",soundOn:"ON",soundOff:"OFF",soundBlocked:"TAP SOUND",tempo:"TEMPO",preset:"TEMPO PRESET",metre:"METRE",noteValue:"NOTE",standard:"STANDARD RHYTHM",custom:"CUSTOM BAR",free:"FREE RHYTHM",reset:"RESET",mute:"MUTE",clear:"CLEAR",undo:"UNDO",redo:"REDO",fit:"FIT",standardFoot:"",standardInvalid:"USE CUSTOM BAR",freeFoot:"SLUR = ONE PULSE • TAP A CURVE TO REMOVE • NO METRE",families:["STANDARD NOTES","STANDARD RESTS","DOTTED NOTES","TUPLETS · 3 IN THE TIME OF 2"],credit:"Developed by Joe Chan"},zh:{play:"播放",stop:"停止",restart:"重播",volume:"音量",sound:"聲音",soundOn:"開",soundOff:"關",soundBlocked:"點按聲音",tempo:"速度",preset:"速度預設",metre:"拍號",noteValue:"音符",standard:"標準節奏",custom:"自訂節奏",free:"自由節奏",reset:"重設",mute:"靜音",clear:"清除",undo:"復原",redo:"重做",fit:"全覽",standardFoot:"",standardInvalid:"請使用自訂節奏",freeFoot:"連結 = 一個拍點 • 點按弧線可移除 • 無拍號",families:["標準音符","標準休止符","附點音符","三連音 · 三個音佔兩個音的時值"],credit:"由 Joe Chan 開發"}};
       const captionZh={"BREVE":"二全音符","WHOLE":"全音符","HALF":"二分","¼":"四分","⅛":"八分","1/16":"十六分","1/32":"三十二分","1/64":"六十四分","1/128":"一百二十八分","BREVE R":"二全休","WHOLE R":"全休","HALF R":"二分休","¼ REST":"四分休","⅛ REST":"八分休","R16":"十六分休","R32":"三十二分休","R64":"六十四分休","D WHOLE":"附點全","D HALF":"附點二分","D ¼":"附點四分","D ⅛":"附點八分","D 1/16":"附點十六分","DD HALF":"雙附點二分","DD ¼":"雙附點四分","DD ⅛":"雙附點八分","DD 1/16":"雙附點十六分"};
       let language="en";
       function ui(){return labels[language];}
-      function applyLanguage(lang){language=lang;const t=ui(),titles=document.querySelectorAll(".control-title"),families=document.querySelectorAll(".note-family-title"),barTitles=document.querySelectorAll(".bar-header h2"),barFeet=document.querySelectorAll(".bar-foot");$("play").textContent=state.playing?t.stop:t.play;$("reset").textContent=t.reset;titles[0].innerHTML=`${t.tempo} • <span id="bpm">${state.bpm}</span> BPM`;titles[1].textContent=t.preset;titles[2].textContent=t.metre;$("soundTitle").textContent=t.sound;$("soundOn").textContent=t.soundOn;$("soundOff").textContent=t.soundOff;$("noteToggleTitle").textContent=t.noteValue;$("noteToggle").setAttribute("aria-label",t.noteValue);$("standardMode").textContent=t.standard;$("customMode").textContent=t.custom;barTitles[0].textContent=t.standard;barTitles[1].textContent=t.free;$("standardReset").textContent=t.reset;$("standardMute").textContent=t.mute;$("customUndo").textContent=t.undo;$("customUndo").title=language==="zh"?"復原上一步自訂節奏編輯":"Undo last Custom Bar edit";$("customRedo").textContent=t.redo;$("customRedo").title=language==="zh"?"重做下一步自訂節奏編輯":"Redo next Custom Bar edit";$("customFit").textContent=t.fit;$("customFit").title=language==="zh"?"縮小節奏以全覽":"Fit rhythm to screen";$("customFit").setAttribute("aria-label",$("customFit").title);$("customZoomOut").title=language==="zh"?"縮小節奏":"Zoom out rhythm";$("customZoomOut").setAttribute("aria-label",$("customZoomOut").title);$("customZoomIn").title=language==="zh"?"放大節奏":"Zoom in rhythm";$("customZoomIn").setAttribute("aria-label",$("customZoomIn").title);$("customClear").textContent=t.clear;updateUndoButton();updateSlurTool();barFeet[0].textContent=t.standardFoot;barFeet[1].textContent=t.freeFoot;families.forEach((node,i)=>node.textContent=t.families[i]);document.querySelectorAll(".note-caption").forEach(node=>{node.dataset.en??=node.textContent;node.textContent=lang==="zh"?(captionZh[node.dataset.en]||node.dataset.en):node.dataset.en;});document.querySelector(".credit").textContent=t.credit;updateNoteSummary(document.querySelector(".note-tile.active")||document.querySelector(".note-tile"));renderStandardGrid();$("langEn").classList.toggle("active",lang==="en");$("langZh").classList.toggle("active",lang==="zh");$("langEn").setAttribute("aria-pressed",lang==="en");$("langZh").setAttribute("aria-pressed",lang==="zh");updateAudioControl();}
+      function applyLanguage(lang){language=lang;const t=ui(),titles=document.querySelectorAll(".control-title"),families=document.querySelectorAll(".note-family-title"),barTitles=document.querySelectorAll(".bar-header h2"),barFeet=document.querySelectorAll(".bar-foot");$("play").textContent=state.playing?t.stop:t.play;$("reset").textContent=t.reset;titles[0].textContent=t.tempo;$("tempoInput").setAttribute("aria-label",`${t.tempo} BPM`);titles[1].textContent=t.preset;titles[2].textContent=t.metre;const languageToggle=$("languageToggle");languageToggle.textContent=lang==="en"?"中文":"EN";languageToggle.setAttribute("aria-label",lang==="en"?"Switch to Chinese":"Switch to English");$("noteToggleTitle").textContent=t.noteValue;$("noteToggle").setAttribute("aria-label",t.noteValue);$("standardMode").textContent=t.standard;$("customMode").textContent=t.custom;barTitles[0].textContent=t.standard;barTitles[1].textContent=t.free;$("standardReset").textContent=t.reset;$("standardMute").textContent=t.mute;$("customUndo").textContent=t.undo;$("customUndo").title=language==="zh"?"復原上一步自訂節奏編輯":"Undo last Custom Bar edit";$("customRedo").textContent=t.redo;$("customRedo").title=language==="zh"?"重做下一步自訂節奏編輯":"Redo next Custom Bar edit";$("customFit").textContent=t.fit;$("customFit").title=language==="zh"?"縮小節奏以全覽":"Fit rhythm to screen";$("customFit").setAttribute("aria-label",$("customFit").title);$("customZoomOut").title=language==="zh"?"縮小節奏":"Zoom out rhythm";$("customZoomOut").setAttribute("aria-label",$("customZoomOut").title);$("customZoomIn").title=language==="zh"?"放大節奏":"Zoom in rhythm";$("customZoomIn").setAttribute("aria-label",$("customZoomIn").title);$("customClear").textContent=t.clear;updateUndoButton();updateSlurTool();barFeet[0].textContent=t.standardFoot;barFeet[1].textContent=t.freeFoot;families.forEach((node,i)=>node.textContent=t.families[i]);document.querySelectorAll(".note-caption").forEach(node=>{node.dataset.en??=node.textContent;node.textContent=lang==="zh"?(captionZh[node.dataset.en]||node.dataset.en):node.dataset.en;});document.querySelector(".credit").textContent=t.credit;updateNoteSummary(document.querySelector(".note-tile.active")||document.querySelector(".note-tile"));renderStandardGrid();updateAudioControl();}
       function getAudio(){
         if(!ctx){
           const AudioContextClass=window.AudioContext||window.webkitAudioContext;
@@ -427,13 +413,13 @@
         updateAudioControl();
       }
       function updateAudioControl(){
-        const on=$("soundOn"),off=$("soundOff");
-        if(!on||!off)return;
-        const enabled=!state.muted;
-        on.classList.toggle("active",enabled);off.classList.toggle("active",!enabled);
-        on.setAttribute("aria-pressed",String(enabled));off.setAttribute("aria-pressed",String(!enabled));
-        on.title=language==="zh"?"開啟聲音":"Turn sound on";
-        off.title=language==="zh"?"關閉聲音":"Turn sound off";
+        const toggle=$("soundToggle");
+        if(!toggle)return;
+        const enabled=!state.muted,t=ui();
+        toggle.textContent=`${t.sound}: ${enabled?t.soundOn:t.soundOff}`;
+        toggle.classList.toggle("muted",!enabled);
+        toggle.setAttribute("aria-pressed",String(enabled));
+        toggle.title=language==="zh"?(enabled?"關閉聲音":"開啟聲音"):(enabled?"Turn sound off":"Turn sound on");
       }
       function primeAudio(ac){
         const source=ac.createBufferSource(),gain=ac.createGain();
@@ -464,6 +450,7 @@
         sound(ac.currentTime+.025,"normal");
       }
       function disableSound(){ setSoundEnabled(false); }
+      function toggleSound(){ state.muted?enableSound():disableSound(); }
       function audition(kind){
         unlockAudio().then(ac=>{if(ac)sound(ac.currentTime+.01,kind);});
       }
@@ -558,7 +545,8 @@
       }
       function stop(){ state.starting=false;state.playing=false;clearInterval(timer);$("play").textContent=ui().play;$("play").classList.remove("running");clearActive(); }
       function toggle(){ state.playing?stop():start(); }
-      function setBpm(v){ state.bpm=Math.max(10,Math.min(280,Number(v)));$("bpm").textContent=state.bpm;$("tempoRange").value=state.bpm;$("tempoPreset").value=tempoPresetValue(state.bpm); }
+      function setBpm(v){ const value=Number(v);if(!Number.isFinite(value))return;state.bpm=Math.max(10,Math.min(280,Math.round(value)));$("tempoInput").value=state.bpm;$("tempoPreset").value=tempoPresetValue(state.bpm); }
+      function commitTempoInput(){ const input=$("tempoInput"),value=Number(input.value);if(Number.isFinite(value))setBpm(value);else input.value=state.bpm; }
       function makeStandardPattern(){ return Array.from({length:standardTotal()},(_,i)=>state.selectedRest?"rest":i===0?"accent":i%state.sub===0?"normal":"ghost"); }
       function resetAllPatterns(){ configureStandardRhythm(state.standardUnits);renderGrid(); }
       function resetStandardPattern(){ if(state.standardCompatible){state.standardPattern=makeStandardPattern();renderStandardGrid();} }
@@ -596,20 +584,20 @@
         state.bpm=60;state.beats=4;state.sub=1;state.standardUnits=1;state.standardCompatible=true;state.standardTuplet=false;state.standardCompound=false;
         state.muted=false;state.selectedGlyph="𝅘𝅥";state.selectedRest=false;state.selectedTuplet="";state.selectedUnits=1;state.tone="wood";
         state.freePattern=[];state.freeGlyphs=[];state.freeDurations=[];state.freeGroups=[];state.freeSlurs=[];state.freeHistory=[];state.freeRedoHistory=[];state.slurMode=false;state.slurAnchor=null;state.freeZoom=1;
-        $("tempoRange").value="60";$("tempoPreset").value="60";$("signature").value="4/4";$("signature").disabled=false;
+        $("tempoInput").value="60";$("tempoPreset").value="60";$("signature").value="4/4";$("signature").disabled=false;
         document.querySelectorAll(".note-tile").forEach(tile=>tile.classList.toggle("active",tile.getAttribute("aria-label")==="Quarter note"));
         const expander=$("noteExpander"),picker=$("notePicker");expander.classList.remove("open");$("noteToggle").setAttribute("aria-expanded","false");picker.setAttribute("inert","");
-        state.mode="standard";$("standardMode").classList.add("active");$("customMode").classList.remove("active");$("standardSystem").classList.add("active");$("customSystem").classList.remove("active");
+        state.mode="custom";$("signature").disabled=true;$("standardMode").classList.remove("active");$("customMode").classList.add("active");$("standardSystem").classList.remove("active");$("customSystem").classList.add("active");
         setBpm(60);setSoundEnabled(true);configureStandardRhythm(1);renderGrid();updateUndoButton();updateSlurTool();applyLanguage("en");resetPlayback();
       }
-$("play").onclick=toggle;$("reset").onclick=resetApplication;$("tempoRange").oninput=e=>setBpm(e.target.value);$("tempoPreset").onchange=e=>setBpm(e.target.value);$("soundOn").onclick=enableSound;$("soundOff").onclick=disableSound;
+$("play").onclick=toggle;$("reset").onclick=resetApplication;$("tempoInput").onchange=commitTempoInput;$("tempoInput").onkeydown=e=>{if(e.key==="Enter")e.currentTarget.blur();};$("tempoPreset").onchange=e=>setBpm(e.target.value);$("soundToggle").onclick=toggleSound;
       $("signature").onchange=()=>configureStandardRhythm(state.standardUnits);
       document.querySelectorAll(".note-tile").forEach(button=>{button.dataset.duration=selectedDuration(button);button.onclick=()=>{const name=button.getAttribute("aria-label").toLowerCase();state.selectedGlyph=button.dataset.glyph;state.selectedRest=button.dataset.rest==="true";state.selectedTuplet=name.includes("thirty-second-note triplet")?"32":name.includes("sixteenth-note triplet")?"sixteenth":name.includes("eighth-note triplet")?"eighth":"";state.standardTuplet=Boolean(state.selectedTuplet);state.selectedUnits=Number(button.dataset.duration);document.querySelectorAll(".note-tile").forEach(tile=>tile.classList.toggle("active",tile===button));updateNoteSummary(button);if(state.mode==="standard")configureStandardRhythm(state.selectedUnits);else renderGrid();};});
       $("noteToggle").onclick=()=>{const expander=$("noteExpander"),picker=$("notePicker"),open=!expander.classList.contains("open");expander.classList.toggle("open",open);$("noteToggle").setAttribute("aria-expanded",String(open));picker.toggleAttribute("inert",!open);};
       $("standardMode").onclick=()=>setMode("standard");$("customMode").onclick=()=>setMode("custom");
       $("standardReset").onclick=resetStandardPattern;$("standardMute").onclick=()=>{state.standardPattern=Array(standardTotal()).fill("rest");renderStandardGrid();};
       $("customUndo").onclick=restoreCustomHistory;$("customRedo").onclick=restoreCustomRedo;$("customFit").onclick=fitFreeRhythm;$("customZoomOut").onclick=()=>changeFreeZoom(-.1);$("customZoomIn").onclick=()=>changeFreeZoom(.1);$("customClear").onclick=clearCustomPattern;$("customSlur").onclick=()=>{state.slurMode=!state.slurMode;state.slurAnchor=null;updateSlurTool();renderGrid();};
-      $("langEn").onclick=()=>applyLanguage("en");$("langZh").onclick=()=>applyLanguage("zh");
+      $("languageToggle").onclick=()=>applyLanguage(language==="en"?"zh":"en");
       document.addEventListener("pointerdown",()=>{unlockAudio();},{passive:true});
       document.addEventListener("touchstart",()=>{unlockAudio();},{passive:true});
       document.addEventListener("visibilitychange",()=>{
